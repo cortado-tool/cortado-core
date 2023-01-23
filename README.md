@@ -12,7 +12,7 @@ Please refer to the [website of Cortado](https://cortado.fit.fraunhofer.de) that
 
 ## Using Cortado-Core in Another Project
 * Cortado-core can be used as a dependency in other Python-projects
-* Install cortado-core via `pip install 'cortado-core @ git+https://github.com/cortado-tool/cortado-core.git@master'`
+* Install cortado-core via `pip install 'cortado-core @ git+https://github.com/cortado-tool/cortado-core.git@main'`
 
 
 ## Citing Cortado
