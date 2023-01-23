@@ -1,0 +1,13 @@
+.idea
+debug.log
+./.idea
+__pycache__
+.vscode/
+*.xes
+.venv
+outputs/
+pm4py/
+.pytest_cache
+cortado_core/experiments/granularity/figures/
+cortado_core/experiments/granularity/results/
+*.csv
