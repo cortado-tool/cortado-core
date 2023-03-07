@@ -21,6 +21,7 @@ def apply_reduction_rules(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
         _tau_reduction_sequence_parallelism(pt, excluded_subtrees=excluded_subtrees)
         _tau_reduction_choice(pt, excluded_subtrees=excluded_subtrees)
         __reduce_tau_loops(pt, excluded_subtrees=excluded_subtrees)
+        __reduce_to_at_most_two_loop_children(pt, excluded_subtrees)
     for subtree in pt.children:
         if not _tree_in_list_of_trees_based_on_id(subtree, excluded_subtrees):
             apply_reduction_rules(subtree, excluded_subtrees)
@@ -29,6 +30,26 @@ def apply_reduction_rules(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
 def _tree_in_list_of_trees_based_on_id(tree: ProcessTree, trees: List[ProcessTree]) -> bool:
     tree_ids = [id(pt) for pt in trees]
     return id(tree) in tree_ids
+
+
+def reduce_loops_with_more_than_two_children(pt, excluded_subtrees = []):
+    __reduce_to_at_most_two_loop_children(pt, excluded_subtrees)
+    for subtree in pt.children:
+        if not _tree_in_list_of_trees_based_on_id(subtree, excluded_subtrees):
+            reduce_loops_with_more_than_two_children(subtree, excluded_subtrees)
+
+def __reduce_to_at_most_two_loop_children(pt, excluded_subtrees):
+    if _tree_in_list_of_trees_based_on_id(pt, excluded_subtrees):
+        return
+
+    if pt.operator != Operator.LOOP or len(pt.children) <= 2:
+        return
+
+    new_xor = ProcessTree(operator=Operator.XOR, parent=pt, children=pt.children[1:])
+    for child in pt.children[1:]:
+        child.parent = new_xor
+
+    pt.children = [pt.children[0], new_xor]
 
 
 def _associativity_reduction_choice_parallelism(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:

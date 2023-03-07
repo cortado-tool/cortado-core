@@ -8,30 +8,23 @@ from pm4py.objects.petri_net.utils import align_utils
 
 from pm4py.objects.conversion.process_tree import converter as pt_converter
 
+from cortado_core.tests.test_infix_alignments import generate_test_trace
+
 
 class TestInfixAlignments(unittest.TestCase):
-    def __generate_test_trace(self, trace_unformatted: List[str]):
-        trace = Trace()
-        for event_unformatted in trace_unformatted:
-            event = Event()
-            event["concept:name"] = event_unformatted
-            trace.append(event)
-
-        return trace
-
     def __test_tree(self, tree, acceptable, unacceptable):
         process_tree = parse(tree)
         net, im, fm = pt_converter.apply(process_tree)
 
         for variant in self.__get_variants():
             for prefix in acceptable:
-                trace = self.__generate_test_trace(prefix)
+                trace = generate_test_trace(prefix)
                 alignment = variant(trace, net, im, fm)
                 # less than because tau moves have a small cost, too
                 self.assertLess(alignment['cost'], align_utils.STD_MODEL_LOG_MOVE_COST, prefix)
 
             for prefix in unacceptable:
-                trace = self.__generate_test_trace(prefix)
+                trace = generate_test_trace(prefix)
                 alignment = variant(trace, net, im, fm)
                 # less than because tau moves have a small cost, too
                 self.assertGreaterEqual(alignment['cost'], align_utils.STD_MODEL_LOG_MOVE_COST, prefix)

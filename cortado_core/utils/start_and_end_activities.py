@@ -1,9 +1,13 @@
 from typing import List
+
+from cortado_core.models.infix_type import InfixType
 from cortado_core.process_tree_utils.reduction import apply_reduction_rules, remove_operator_node_with_one_or_no_child
 from pm4py.objects.log.obj import Event, EventLog, Trace
 from pm4py.objects.process_tree.obj import Operator, ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
 from pm4py.util.xes_constants import DEFAULT_TRACEID_KEY
+
+from cortado_core.utils.trace import TypedTrace
 
 ARTIFICIAL_START_ACTIVITY_NAME = "Artificial Start Activity Name"
 ARTIFICIAL_END_ACTIVITY_NAME = "Artificial End Activity Name"
@@ -11,9 +15,10 @@ ARTIFICIAL_END_ACTIVITY_NAME = "Artificial End Activity Name"
 artificialStartEvent = Event({DEFAULT_TRACEID_KEY: ARTIFICIAL_START_ACTIVITY_NAME})
 artificialEndEvent = Event({DEFAULT_TRACEID_KEY: ARTIFICIAL_END_ACTIVITY_NAME})
 
+
 # Not in place
 def add_artificial_start_and_end_to_pt(
-    tree: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+        tree: ProcessTree, excluded_subtrees: List[ProcessTree] = []
 ) -> ProcessTree:
     """
     Adds an artificial start and end activity node at the root of the provided process tree
@@ -37,8 +42,9 @@ def add_artificial_start_and_end_to_pt(
 
     return expanded_tree
 
+
 def add_artificial_start_and_end_activity_to_trace(
-    trace: Trace, inplace: bool = False
+        trace: Trace, inplace: bool = False
 ) -> EventLog or None:
     """
     Adds an artificial start and end activity to the trace
@@ -55,8 +61,38 @@ def add_artificial_start_and_end_activity_to_trace(
         )
 
 
+def add_artificial_start_end_activity_to_typed_trace(trace: TypedTrace):
+    match trace.infix_type:
+        case InfixType.NOT_AN_INFIX:
+            return TypedTrace(add_artificial_start_and_end_activity_to_trace(trace.trace), trace.infix_type)
+        case InfixType.PROPER_INFIX:
+            return trace
+        case InfixType.PREFIX:
+            new_trace = Trace([artificialStartEvent] + trace.trace._list,
+                              kwargs={"properties": trace.trace.properties, "attributes": trace.trace.attributes})
+            return TypedTrace(new_trace, trace.infix_type)
+        case InfixType.POSTFIX:
+            new_trace = Trace(trace.trace._list + [artificialEndEvent],
+                              kwargs={"properties": trace.trace.properties, "attributes": trace.trace.attributes})
+            return TypedTrace(new_trace, trace.infix_type)
+
+    raise ValueError('Unknown infix type')
+
+
+def add_artificial_start_end_activity_to_typed_log(log: list[TypedTrace]) -> list[TypedTrace]:
+    return [
+        add_artificial_start_end_activity_to_typed_trace(trace)
+        for trace in log
+    ]
+
+
+def add_artificial_end_activity_to_trace(trace: Trace):
+    return Trace(trace._list + [artificialEndEvent],
+                 kwargs={"properties": trace.properties, "attributes": trace.attributes})
+
+
 def add_artificial_start_and_end_activity_to_Log(
-    log: EventLog, inplace: bool = False
+        log: EventLog, inplace: bool = False
 ) -> EventLog or None:
     """
     Adds an artificial start and end activity to the trace
@@ -86,7 +122,7 @@ def add_artificial_start_and_end_activity_to_Log(
 
 
 def remove_artificial_start_and_end_activity_leaves_from_pt(
-    tree: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+        tree: ProcessTree, excluded_subtrees: List[ProcessTree] = []
 ):
     """
     Recurses over the trees and remove all leaf nodes with a label equal to the artificial start and end activities
@@ -99,7 +135,7 @@ def remove_artificial_start_and_end_activity_leaves_from_pt(
 
         for child in tree.children:
             if child_tree := remove_artificial_start_and_end_activity_leaves_from_pt(
-                child
+                    child
             ):
                 new_children.append(child_tree)
 
@@ -117,8 +153,8 @@ def remove_artificial_start_and_end_activity_leaves_from_pt(
 
     return tree
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     tree: ProcessTree = pt_parse(
         "+ (->('A','"
         + ARTIFICIAL_END_ACTIVITY_NAME

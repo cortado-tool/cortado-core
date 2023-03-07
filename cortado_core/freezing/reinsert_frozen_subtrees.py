@@ -14,7 +14,6 @@ from pm4py.objects.petri_net.utils import align_utils
 
 from pm4py.objects.conversion.process_tree.converter import apply as pt_to_net
 
-from cortado_core.lca_approach import __find_lowest_common_ancestor
 from cortado_core.process_tree_utils.miscellaneous import is_leaf_node, replace_tree_in_children, \
     get_root, pt_dict_key
 import pm4py.visualization.process_tree.visualizer as tree_vis
@@ -22,6 +21,7 @@ import pm4py.visualization.process_tree.visualizer as tree_vis
 from cortado_core.process_tree_utils.reduction import apply_reduction_rules, remove_operator_node_with_one_or_no_child, \
     general_tau_reduction
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
+from cortado_core.utils.lca_utils import find_lowest_common_ancestor
 
 
 def reinsert_frozen_subtrees(subtrees_to_insert: OrderedDict[str, ProcessTree], pt: ProcessTree,
@@ -64,7 +64,7 @@ def reinsert_frozen_subtrees(subtrees_to_insert: OrderedDict[str, ProcessTree], 
             for i in range(1, len(pt_activated)):
                 tree_changed = True
                 while tree_changed:
-                    res, tree_changed = __find_lowest_common_ancestor(lca_pt_activated, pt_activated[i], True)
+                    res, tree_changed = find_lowest_common_ancestor(lca_pt_activated, pt_activated[i], True)
                 lca_pt_activated = res
 
         lca_pt_closed = pt_closed[0]
@@ -72,13 +72,13 @@ def reinsert_frozen_subtrees(subtrees_to_insert: OrderedDict[str, ProcessTree], 
             for i in range(1, len(pt_closed)):
                 tree_changed = True
                 while tree_changed:
-                    res, tree_changed = __find_lowest_common_ancestor(lca_pt_closed, pt_closed[i], True)
+                    res, tree_changed = find_lowest_common_ancestor(lca_pt_closed, pt_closed[i], True)
                 lca_pt_closed = res
 
         # tree_vis.view(tree_vis.apply(pt, parameters={"format": "svg"}))
         tree_changed = True
         while tree_changed:
-            lca, tree_changed = __find_lowest_common_ancestor(lca_pt_activated, lca_pt_closed, True)
+            lca, tree_changed = find_lowest_common_ancestor(lca_pt_activated, lca_pt_closed, True)
 
         # tree_vis.view(tree_vis.apply(pt, parameters={"format": "svg"}))
 

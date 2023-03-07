@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='cortado_core',
-    version='1.3.9',
+    version='1.3.10',
     author="Daniel Schuster",
     author_email="daniel.schuster@fit.fraunhofer.de",
     # package_dir={"": "cortado-core"},
@@ -20,7 +20,6 @@ setup(
               'cortado_core.subprocess_discovery.subtree_mining.metrics',
               'cortado_core.subprocess_discovery.subtree_mining.blanket_mining',
               'cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components',
-              'cortado_core.alignments.suffix_alignments',
               'cortado_core.tiebreaker'],
     install_requires=[
         'matplotlib==3.6.2',

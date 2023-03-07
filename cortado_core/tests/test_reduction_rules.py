@@ -167,7 +167,15 @@ class ReductionRuleTests(unittest.TestCase):
         reduction.apply_reduction_rules(pt)
         self.assertEqual(pt_parse("->('a',+('f',*(tau,'a')),'c','d')"), pt)
 
+    def test_reduce_to_at_most_two_loop_children(self):
+        pt = pt_parse("*('a', 'b', 'c')")
+        reduction.apply_reduction_rules(pt)
+        self.assertEqual(pt_parse("*('a', X('b', 'c'))"), pt)
 
+    def test_reduce_to_at_most_two_loop_children_complex(self):
+        pt = pt_parse("*(->('a', X('b', tau)), +('a', 'b'), X('c', +('d', 'e')))")
+        reduction.apply_reduction_rules(pt)
+        self.assertEqual(pt_parse("*(->('a', X('b', tau)), X(+('a', 'b'), 'c', +('d', 'e')))"), pt)
 
 
 if __name__ == '__main__':

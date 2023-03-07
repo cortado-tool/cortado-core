@@ -4,7 +4,7 @@ import sys
 import uuid
 import time
 from itertools import product
-from typing import Tuple, List, Set, Dict, Optional
+from typing import Tuple, List, Set, Dict, Optional, Any
 
 from pm4py.objects.log.obj import Trace
 from pm4py.objects.process_tree.obj import ProcessTree, Operator
@@ -13,27 +13,34 @@ from pm4py.util import typing as pm4py_typing
 from pm4py.objects.petri_net.utils import petri_utils
 from pm4py.objects.conversion.process_tree import converter as pt_converter
 
+from cortado_core.alignments.prefix_alignments.algorithm import add_to_parameters
 from cortado_core.process_tree_utils.miscellaneous import is_leaf_node, get_pt_node_height
 from cortado_core.alignments.prefix_alignments import algorithm as prefix_alignments
 from cortado_core.alignments.infix_alignments import utils as infix_utils
 from cortado_core.process_tree_utils.miscellaneous import is_tau_leaf
-from cortado_core.alignments.infix_alignments.utils import generate_reachable_markings
+from cortado_core.process_tree_utils.to_petri_net_transition_bordered import apply as pt_to_petri_net
 
 
 def calculate_optimal_infix_alignment(trace: Trace, process_tree: ProcessTree, naive: bool = True,
                                       use_dijkstra: bool = False, enforce_first_tau_move=False,
-                                      timeout: int = sys.maxsize) -> pm4py_typing.AlignmentResult:
+                                      timeout: int = sys.maxsize,
+                                      use_cortado_tree_converter=False,
+                                      reduce_tree=False,
+                                      parameters=None) -> pm4py_typing.AlignmentResult:
     process_tree = copy.deepcopy(process_tree)
 
     start = time.time()
 
     try:
         # reduce the tree always for the not naive approach
-        net, im, fm, n_added_tau_transitions = build_extended_petri_net_for_infix_alignments(trace, process_tree,
-                                                                                             naive,
-                                                                                             reduce_tree=not naive,
-                                                                                             use_for_suffix_alignments=False,
-                                                                                             timeout=timeout)
+        net, im, fm, n_added_tau_transitions, unmodified_net_getter = build_extended_petri_net_for_infix_alignments(
+            trace,
+            process_tree,
+            naive,
+            reduce_tree=reduce_tree,
+            use_for_suffix_alignments=False,
+            timeout=timeout,
+            use_cortado_tree_converter=use_cortado_tree_converter)
     except TimeoutError:
         return {'timeout': True}
 
@@ -42,20 +49,26 @@ def calculate_optimal_infix_alignment(trace: Trace, process_tree: ProcessTree, n
 
     prefix_alignment_variant = __get_prefix_alignment_variant(use_dijkstra)
     align_start = time.time()
+
+    params = {
+        prefix_alignments.Parameters.PARAM_MAX_ALIGN_TIME_TRACE: timeout,
+        prefix_alignments.Parameters.PARAM_ENFORCE_FIRST_TAU_MOVE: enforce_first_tau_move,
+    }
+
     alignment = prefix_alignments.apply_trace(trace, net, im, fm, variant=prefix_alignment_variant,
-                                              parameters={
-                                                  prefix_alignments.Parameters.PARAM_MAX_ALIGN_TIME_TRACE: timeout,
-                                                  prefix_alignments.Parameters.PARAM_ENFORCE_FIRST_TAU_MOVE: enforce_first_tau_move,
-                                              })
+                                              parameters=add_to_parameters(params, parameters))
     if alignment is None:
         alignment = {'timeout': True}
         return alignment
 
-    alignment = infix_utils.remove_first_tau_move_from_alignment(alignment)
+    alignment = infix_utils.remove_first_tau_move_from_alignment(alignment, net, im)
 
     alignment['alignment_duration'] = time.time() - align_start
     alignment['preprocessing_duration'] = preprocessing_duration
     alignment['added_tau_transitions'] = n_added_tau_transitions
+    alignment['net'] = unmodified_net_getter()
+    if 'start_marking' not in alignment:
+        alignment['start_marking'] = alignment['net'][1]
 
     return alignment
 
@@ -67,9 +80,10 @@ def __get_prefix_alignment_variant(use_dijkstra: bool):
 
 
 def build_extended_petri_net_for_infix_alignments(trace: Trace, process_tree: ProcessTree, naive: bool,
-                                                  reduce_tree: bool, use_for_suffix_alignments: bool, timeout: int) -> \
+                                                  reduce_tree: bool, use_for_suffix_alignments: bool, timeout: int,
+                                                  use_cortado_tree_converter=False) -> \
         Tuple[
-            PetriNet, Marking, Marking, int]:
+            PetriNet, Marking, Marking, int, Any]:
     all_leaf_nodes = search_leaf_nodes_in_tree(process_tree)
     trace_activities = set([e['concept:name'] for e in trace])
     matching_leaf_nodes = get_matching_leaf_nodes(trace_activities, all_leaf_nodes)
@@ -80,14 +94,26 @@ def build_extended_petri_net_for_infix_alignments(trace: Trace, process_tree: Pr
     renaming_func = __rename_duplicate_labels(all_leaf_nodes)
     renaming_func = __rename_tau_leaves(all_leaf_nodes, renaming_func)
 
-    net, im, fm = pt_converter.apply(process_tree)
+    if use_cortado_tree_converter:
+        net, im, fm = pt_to_petri_net(process_tree)
+    else:
+        net, im, fm = pt_converter.apply(process_tree)
     new_im, start_place = infix_utils.add_new_initial_place(net)
-    n_added_tau_transitions = __add_infix_alignment_transitions(net, matching_leaf_nodes, all_leaf_nodes, start_place,
-                                                                fm, naive, use_for_suffix_alignments, timeout)
+    n_added_tau_transitions, added_transitions = __add_infix_alignment_transitions(net, matching_leaf_nodes,
+                                                                                   all_leaf_nodes, start_place,
+                                                                                   fm, naive, use_for_suffix_alignments,
+                                                                                   timeout)
 
-    __revert_renaming(net, renaming_func)
+    __revert_renaming(net, process_tree, renaming_func)
 
-    return net, new_im, fm, n_added_tau_transitions
+    return net, new_im, fm, n_added_tau_transitions, lambda: __get_unmodified_net(net, im, fm, added_transitions)
+
+
+def __get_unmodified_net(net, im, fm, added_transitions):
+    for t in added_transitions:
+        petri_utils.remove_transition(net, t)
+
+    return net, im, fm
 
 
 def __add_tau_transition_from_new_initial_to_final_place(fm: Marking, net: PetriNet, start_place: PetriNet.Place):
@@ -104,6 +130,7 @@ def __add_infix_alignment_transitions(net: PetriNet, matching_leaf_nodes: List[P
                                       naive: bool, use_for_suffix_alignments: False, timeout: int):
     matching_leaf_nodes_labels = set([n.label for n in matching_leaf_nodes])
     markings = __generate_markings(matching_leaf_nodes, matching_leaf_nodes_labels, naive, timeout)
+    added_transitions = []
 
     if use_for_suffix_alignments or len(markings) == 0:
         # For suffix alignments, we always need the option to directly start with the final marking.
@@ -131,12 +158,13 @@ def __add_infix_alignment_transitions(net: PetriNet, matching_leaf_nodes: List[P
         already_marked.add(frozenset(petri_marking))
 
         new_transition = PetriNet.Transition(str(uuid.uuid4()))
+        added_transitions.append(new_transition)
         net.transitions.add(new_transition)
         petri_utils.add_arc_from_to(initial_place, new_transition, net)
         for p in petri_marking:
             petri_utils.add_arc_from_to(new_transition, p, net)
 
-    return len(already_marked)
+    return len(already_marked), added_transitions
 
 
 def __generate_pre_post_sets(leaf_nodes: List[ProcessTree], net: PetriNet):
@@ -390,10 +418,20 @@ def __create_list_of_all_parents(pt: ProcessTree) -> List[ProcessTree]:
     return ancestors
 
 
-def __revert_renaming(net: PetriNet, renaming_func: Dict[str, str]):
+def __revert_renaming(net: PetriNet, pt: ProcessTree, renaming_func: Dict[str, str]):
     for transition in net.transitions:
         if transition.label in renaming_func:
             transition.label = renaming_func[transition.label]
+
+    __revert_renaming_in_tree(pt, renaming_func)
+
+
+def __revert_renaming_in_tree(pt: ProcessTree, renaming_func):
+    if pt.label in renaming_func:
+        pt.label = renaming_func[pt.label]
+
+    for child in pt.children:
+        __revert_renaming_in_tree(child, renaming_func)
 
 
 def __rename_duplicate_labels(nodes: List[ProcessTree]) -> Dict[str, Optional[str]]:

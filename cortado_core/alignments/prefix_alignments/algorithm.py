@@ -11,6 +11,7 @@ from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.util import typing as pm4pyTyping
 from pm4py.objects.conversion.process_tree import converter as pt_converter
 
+from cortado_core.process_tree_utils.to_petri_net_transition_bordered import apply as pt_to_petri_net
 from cortado_core.alignments.prefix_alignments.variants import dijkstra_no_heuristics, a_star
 
 
@@ -48,19 +49,39 @@ VERSIONS = {Variants.VERSION_DIJKSTRA_NO_HEURISTICS, Variants.VERSION_A_STAR}
 
 
 def calculate_optimal_prefix_alignment(trace: Trace, process_tree: ProcessTree, use_dijkstra: bool = False,
-                                       timeout: int = sys.maxsize) -> pm4pyTyping.AlignmentResult:
-    net, im, fm = pt_converter.apply(process_tree)
+                                       timeout: int = sys.maxsize,
+                                       use_cortado_tree_converter=False,
+                                       parameters=None) -> pm4pyTyping.AlignmentResult:
+    if use_cortado_tree_converter:
+        net, im, fm = pt_to_petri_net(process_tree)
+    else:
+        net, im, fm = pt_converter.apply(process_tree)
     align_variant = __get_prefix_alignment_variant(use_dijkstra)
 
-    return apply_trace(trace, net, im, fm, variant=align_variant, parameters={
+    params = {
         Parameters.PARAM_MAX_ALIGN_TIME_TRACE: timeout,
-    })
+    }
+
+    alignment = apply_trace(trace, net, im, fm, variant=align_variant, parameters=add_to_parameters(params, parameters))
+    alignment['net'] = (net, im, fm)
+
+    return alignment
 
 
 def __get_prefix_alignment_variant(use_dijkstra: bool):
     if use_dijkstra:
         return VERSION_DIJKSTRA_NO_HEURISTICS
     return VERSION_A_STAR
+
+
+def add_to_parameters(parameters, new_parameters):
+    if new_parameters is None:
+        return parameters
+
+    for name, value in new_parameters.items():
+        parameters[name] = value
+
+    return parameters
 
 
 def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=None,
