@@ -32,7 +32,6 @@ def parse_query_to_tree(query: str):
 
 
 def parse_query_to_query_tree(query: str):
-
     pT = parse_query_to_tree(query)
 
     qT = convertParseTreeToQueryTree(pT.getRuleContext())

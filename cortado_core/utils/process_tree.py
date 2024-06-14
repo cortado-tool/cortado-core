@@ -3,18 +3,20 @@ from collections import Counter, UserString
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import is_leaf
 
+
 class LabelWithIndex(UserString):
     """
     Combines the label, i.e. a string, with an additional index for differentiating between multiple occurences within a process tree.
-    Mostly treated like a string but with the additional index attribute being exposed. 
+    Mostly treated like a string but with the additional index attribute being exposed.
     """
+
     def __init__(self, label, index):
         self.data = label
         self.index = index
-    
+
     def __bool__(self):
         return bool(self.data)
-    
+
     def __add__(self, other):
         if isinstance(other, UserString):
             return self.__class__(self.data + other.data, self.index)
@@ -24,15 +26,15 @@ class LabelWithIndex(UserString):
 
     def __radd__(self, other):
         if isinstance(other, UserString):
-            return self.__class__(other.data + self.data , self.index)
+            return self.__class__(other.data + self.data, self.index)
         elif isinstance(other, str):
             return self.__class__(other + self.data, self.index)
         return self.__class__(str(other) + self.data, self.index)
-    
+
     def __contains__(self, key):
         if self.data is None:
             return False
-        return key in self.data 
+        return key in self.data
 
     def __hash__(self):
         return hash(self.data)
@@ -40,6 +42,7 @@ class LabelWithIndex(UserString):
     @property
     def full(self):
         return f'{self.data if self.data is not None else "tau"}_{self.index}'
+
 
 class CortadoProcessTree(ProcessTree):
     _hash = None
@@ -96,6 +99,7 @@ def index_leaf_labels(tree: ProcessTree, counter=None):
             child = index_leaf_labels(child, counter)
     return tree
 
+
 def convert_tree(tree: ProcessTree):
     cortado_tree = convert_tree_rec(tree)
     index_leaf_labels(cortado_tree)
@@ -103,7 +107,9 @@ def convert_tree(tree: ProcessTree):
 
 
 def convert_tree_rec(tree: ProcessTree, parent=None):
-    new_tree = CortadoProcessTree(operator=tree.operator, label=tree.label, parent=parent)
+    new_tree = CortadoProcessTree(
+        operator=tree.operator, label=tree.label, parent=parent
+    )
     children = [convert_tree_rec(t, parent=new_tree) for t in tree.children]
     new_tree._children = children
     return new_tree

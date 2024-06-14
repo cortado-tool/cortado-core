@@ -3,10 +3,11 @@
 from antlr4 import *
 from io import StringIO
 import sys
+
 if sys.version_info[1] > 5:
-	from typing import TextIO
+    from typing import TextIO
 else:
-	from typing.io import TextIO
+    from typing.io import TextIO
 
 
 def serializedATN():
@@ -45,8 +46,8 @@ def serializedATN():
         buf.write("\2\2\20f\3\2\2\2\22l\3\2\2\2\24\u008a\3\2\2\2\26\u008c")
         buf.write("\3\2\2\2\30\u00a8\3\2\2\2\32\u00e1\3\2\2\2\34\u0130\3")
         buf.write("\2\2\2\36 \5\4\3\2\37\36\3\2\2\2 #\3\2\2\2!\37\3\2\2\2")
-        buf.write("!\"\3\2\2\2\"$\3\2\2\2#!\3\2\2\2$%\7\2\2\3%\3\3\2\2\2")
-        buf.write("&\'\5\6\4\2\'(\7\17\2\2(\5\3\2\2\2)B\5\22\n\2*B\5\30\r")
+        buf.write('!"\3\2\2\2"$\3\2\2\2#!\3\2\2\2$%\7\2\2\3%\3\3\2\2\2')
+        buf.write("&'\5\6\4\2'(\7\17\2\2(\5\3\2\2\2)B\5\22\n\2*B\5\30\r")
         buf.write("\2+B\5\32\16\2,B\5\26\f\2-.\7\27\2\2./\7\t\2\2/\60\5\22")
         buf.write("\n\2\60\61\7\n\2\2\61B\3\2\2\2\62\63\7\27\2\2\63\64\7")
         buf.write("\t\2\2\64\65\5\30\r\2\65\66\7\n\2\2\66B\3\2\2\2\678\7")
@@ -152,27 +153,69 @@ def serializedATN():
         return buf.getvalue()
 
 
-class vqlParser ( Parser ):
-
+class vqlParser(Parser):
     grammarFileName = "vql.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "'('", "')'", 
-                     "'ANY'", "'ALL'", "'{'", "'}'", "';'", "','", "'~'", 
-                     "'='", "'<'", "'>'", "'AND'", "'OR'", "'NOT'", "'->'" ]
+    literalNames = [
+        "<INVALID>",
+        "<INVALID>",
+        "<INVALID>",
+        "<INVALID>",
+        "<INVALID>",
+        "<INVALID>",
+        "<INVALID>",
+        "'('",
+        "')'",
+        "'ANY'",
+        "'ALL'",
+        "'{'",
+        "'}'",
+        "';'",
+        "','",
+        "'~'",
+        "'='",
+        "'<'",
+        "'>'",
+        "'AND'",
+        "'OR'",
+        "'NOT'",
+        "'->'",
+    ]
 
-    symbolicNames = [ "<INVALID>", "ISEVENTUALLYFOLLOWED", "ISDIRECTLYFOLLOWED", 
-                      "ISCONCURRENT", "ISSTARTTOKEN", "ISENDTOKEN", "ISCONTAINED", 
-                      "LPAR", "RPAR", "ANY", "ALL", "LCBRACKET", "RCBRACKET", 
-                      "SEMICOLON", "COMMA", "GROUPINVERSE", "EQUALS", "LT", 
-                      "GT", "AND", "OR", "NOT", "IMPLIES", "NUMBER", "WS", 
-                      "ACTIVITY" ]
+    symbolicNames = [
+        "<INVALID>",
+        "ISEVENTUALLYFOLLOWED",
+        "ISDIRECTLYFOLLOWED",
+        "ISCONCURRENT",
+        "ISSTARTTOKEN",
+        "ISENDTOKEN",
+        "ISCONTAINED",
+        "LPAR",
+        "RPAR",
+        "ANY",
+        "ALL",
+        "LCBRACKET",
+        "RCBRACKET",
+        "SEMICOLON",
+        "COMMA",
+        "GROUPINVERSE",
+        "EQUALS",
+        "LT",
+        "GT",
+        "AND",
+        "OR",
+        "NOT",
+        "IMPLIES",
+        "NUMBER",
+        "WS",
+        "ACTIVITY",
+    ]
 
     RULE_start = 0
     RULE_query = 1
@@ -189,88 +232,107 @@ class vqlParser ( Parser ):
     RULE_cnfClause = 12
     RULE_group = 13
 
-    ruleNames =  [ "start", "query", "logicBlock", "bQueryOp", "uQueryOp", 
-                   "qOp", "quantifier", "expression", "leaf", "implyBlock", 
-                   "impliesClause", "dnfClause", "cnfClause", "group" ]
+    ruleNames = [
+        "start",
+        "query",
+        "logicBlock",
+        "bQueryOp",
+        "uQueryOp",
+        "qOp",
+        "quantifier",
+        "expression",
+        "leaf",
+        "implyBlock",
+        "impliesClause",
+        "dnfClause",
+        "cnfClause",
+        "group",
+    ]
 
     EOF = Token.EOF
-    ISEVENTUALLYFOLLOWED=1
-    ISDIRECTLYFOLLOWED=2
-    ISCONCURRENT=3
-    ISSTARTTOKEN=4
-    ISENDTOKEN=5
-    ISCONTAINED=6
-    LPAR=7
-    RPAR=8
-    ANY=9
-    ALL=10
-    LCBRACKET=11
-    RCBRACKET=12
-    SEMICOLON=13
-    COMMA=14
-    GROUPINVERSE=15
-    EQUALS=16
-    LT=17
-    GT=18
-    AND=19
-    OR=20
-    NOT=21
-    IMPLIES=22
-    NUMBER=23
-    WS=24
-    ACTIVITY=25
+    ISEVENTUALLYFOLLOWED = 1
+    ISDIRECTLYFOLLOWED = 2
+    ISCONCURRENT = 3
+    ISSTARTTOKEN = 4
+    ISENDTOKEN = 5
+    ISCONTAINED = 6
+    LPAR = 7
+    RPAR = 8
+    ANY = 9
+    ALL = 10
+    LCBRACKET = 11
+    RCBRACKET = 12
+    SEMICOLON = 13
+    COMMA = 14
+    GROUPINVERSE = 15
+    EQUALS = 16
+    LT = 17
+    GT = 18
+    AND = 19
+    OR = 20
+    NOT = 21
+    IMPLIES = 22
+    NUMBER = 23
+    WS = 24
+    ACTIVITY = 25
 
-    def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
+    def __init__(self, input: TokenStream, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
-        self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
+        self._interp = ParserATNSimulator(
+            self, self.atn, self.decisionsToDFA, self.sharedContextCache
+        )
         self._predicates = None
 
-
-
-
     class StartContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def EOF(self):
             return self.getToken(vqlParser.EOF, 0)
 
-        def query(self, i:int=None):
+        def query(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.QueryContext)
             else:
-                return self.getTypedRuleContext(vqlParser.QueryContext,i)
-
+                return self.getTypedRuleContext(vqlParser.QueryContext, i)
 
         def getRuleIndex(self):
             return vqlParser.RULE_start
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStart" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterStart"):
                 listener.enterStart(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStart" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitStart"):
                 listener.exitStart(self)
 
-
-
-
     def start(self):
-
         localctx = vqlParser.StartContext(self, self._ctx, self.state)
         self.enterRule(localctx, 0, self.RULE_start)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 31
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << vqlParser.LPAR) | (1 << vqlParser.ANY) | (1 << vqlParser.ALL) | (1 << vqlParser.GROUPINVERSE) | (1 << vqlParser.NOT) | (1 << vqlParser.ACTIVITY))) != 0):
+            while ((_la) & ~0x3F) == 0 and (
+                (1 << _la)
+                & (
+                    (1 << vqlParser.LPAR)
+                    | (1 << vqlParser.ANY)
+                    | (1 << vqlParser.ALL)
+                    | (1 << vqlParser.GROUPINVERSE)
+                    | (1 << vqlParser.NOT)
+                    | (1 << vqlParser.ACTIVITY)
+                )
+            ) != 0:
                 self.state = 28
                 self.query()
                 self.state = 33
@@ -287,11 +349,12 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class QueryContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -299,25 +362,20 @@ class vqlParser ( Parser ):
             return self.getToken(vqlParser.SEMICOLON, 0)
 
         def logicBlock(self):
-            return self.getTypedRuleContext(vqlParser.LogicBlockContext,0)
-
+            return self.getTypedRuleContext(vqlParser.LogicBlockContext, 0)
 
         def getRuleIndex(self):
             return vqlParser.RULE_query
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterQuery" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterQuery"):
                 listener.enterQuery(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitQuery" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitQuery"):
                 listener.exitQuery(self)
 
-
-
-
     def query(self):
-
         localctx = vqlParser.QueryContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_query)
         try:
@@ -334,30 +392,27 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class LogicBlockContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.neg = None # Token
+            self.neg = None  # Token
 
         def leaf(self):
-            return self.getTypedRuleContext(vqlParser.LeafContext,0)
-
+            return self.getTypedRuleContext(vqlParser.LeafContext, 0)
 
         def dnfClause(self):
-            return self.getTypedRuleContext(vqlParser.DnfClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.DnfClauseContext, 0)
 
         def cnfClause(self):
-            return self.getTypedRuleContext(vqlParser.CnfClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.CnfClauseContext, 0)
 
         def impliesClause(self):
-            return self.getTypedRuleContext(vqlParser.ImpliesClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.ImpliesClauseContext, 0)
 
         def LPAR(self):
             return self.getToken(vqlParser.LPAR, 0)
@@ -371,25 +426,21 @@ class vqlParser ( Parser ):
         def getRuleIndex(self):
             return vqlParser.RULE_logicBlock
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLogicBlock" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterLogicBlock"):
                 listener.enterLogicBlock(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLogicBlock" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitLogicBlock"):
                 listener.exitLogicBlock(self)
 
-
-
-
     def logicBlock(self):
-
         localctx = vqlParser.LogicBlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_logicBlock)
         try:
             self.state = 63
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,1,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 1, self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 39
@@ -462,7 +513,6 @@ class vqlParser ( Parser ):
                 self.match(vqlParser.RPAR)
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -471,81 +521,76 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class BQueryOpContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_bQueryOp
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class CONCURRENTOPContext(BQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.BQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.BQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISCONCURRENT(self):
             return self.getToken(vqlParser.ISCONCURRENT, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCONCURRENTOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCONCURRENTOP"):
                 listener.enterCONCURRENTOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCONCURRENTOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCONCURRENTOP"):
                 listener.exitCONCURRENTOP(self)
 
-
     class DIRECTLYFOLLOWSOPContext(BQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.BQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.BQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISDIRECTLYFOLLOWED(self):
             return self.getToken(vqlParser.ISDIRECTLYFOLLOWED, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDIRECTLYFOLLOWSOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterDIRECTLYFOLLOWSOP"):
                 listener.enterDIRECTLYFOLLOWSOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDIRECTLYFOLLOWSOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitDIRECTLYFOLLOWSOP"):
                 listener.exitDIRECTLYFOLLOWSOP(self)
 
-
     class EVENTUALLYFOLLOWSOPContext(BQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.BQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.BQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISEVENTUALLYFOLLOWED(self):
             return self.getToken(vqlParser.ISEVENTUALLYFOLLOWED, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEVENTUALLYFOLLOWSOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterEVENTUALLYFOLLOWSOP"):
                 listener.enterEVENTUALLYFOLLOWSOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEVENTUALLYFOLLOWSOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitEVENTUALLYFOLLOWSOP"):
                 listener.exitEVENTUALLYFOLLOWSOP(self)
 
-
-
     def bQueryOp(self):
-
         localctx = vqlParser.BQueryOpContext(self, self._ctx, self.state)
         self.enterRule(localctx, 6, self.RULE_bQueryOp)
         try:
@@ -581,81 +626,76 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class UQueryOpContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_uQueryOp
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class CONTAINSOPContext(UQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.UQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.UQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISCONTAINED(self):
             return self.getToken(vqlParser.ISCONTAINED, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCONTAINSOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCONTAINSOP"):
                 listener.enterCONTAINSOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCONTAINSOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCONTAINSOP"):
                 listener.exitCONTAINSOP(self)
 
-
     class STARTOPContext(UQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.UQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.UQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISSTARTTOKEN(self):
             return self.getToken(vqlParser.ISSTARTTOKEN, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSTARTOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterSTARTOP"):
                 listener.enterSTARTOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSTARTOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitSTARTOP"):
                 listener.exitSTARTOP(self)
 
-
     class ENDOPContext(UQueryOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.UQueryOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.UQueryOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def ISENDTOKEN(self):
             return self.getToken(vqlParser.ISENDTOKEN, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterENDOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterENDOP"):
                 listener.enterENDOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitENDOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitENDOP"):
                 listener.exitENDOP(self)
 
-
-
     def uQueryOp(self):
-
         localctx = vqlParser.UQueryOpContext(self, self._ctx, self.state)
         self.enterRule(localctx, 8, self.RULE_uQueryOp)
         try:
@@ -691,81 +731,76 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class QOpContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_qOp
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class LESSOPContext(QOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.QOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.QOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def LT(self):
             return self.getToken(vqlParser.LT, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLESSOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterLESSOP"):
                 listener.enterLESSOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLESSOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitLESSOP"):
                 listener.exitLESSOP(self)
 
-
     class EQUALSOPContext(QOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.QOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.QOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def EQUALS(self):
             return self.getToken(vqlParser.EQUALS, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEQUALSOP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterEQUALSOP"):
                 listener.enterEQUALSOP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEQUALSOP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitEQUALSOP"):
                 listener.exitEQUALSOP(self)
 
-
     class GREATEROPContext(QOpContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.QOpContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.QOpContext
             super().__init__(parser)
             self.copyFrom(ctx)
 
         def GT(self):
             return self.getToken(vqlParser.GT, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterGREATEROP" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterGREATEROP"):
                 listener.enterGREATEROP(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitGREATEROP" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitGREATEROP"):
                 listener.exitGREATEROP(self)
 
-
-
     def qOp(self):
-
         localctx = vqlParser.QOpContext(self, self._ctx, self.state)
         self.enterRule(localctx, 10, self.RULE_qOp)
         try:
@@ -801,19 +836,19 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class QuantifierContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.op = None # QOpContext
-            self.number = None # Token
+            self.op = None  # QOpContext
+            self.number = None  # Token
 
         def qOp(self):
-            return self.getTypedRuleContext(vqlParser.QOpContext,0)
-
+            return self.getTypedRuleContext(vqlParser.QOpContext, 0)
 
         def NUMBER(self):
             return self.getToken(vqlParser.NUMBER, 0)
@@ -821,19 +856,15 @@ class vqlParser ( Parser ):
         def getRuleIndex(self):
             return vqlParser.RULE_quantifier
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterQuantifier" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterQuantifier"):
                 listener.enterQuantifier(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitQuantifier" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitQuantifier"):
                 listener.exitQuantifier(self)
 
-
-
-
     def quantifier(self):
-
         localctx = vqlParser.QuantifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 12, self.RULE_quantifier)
         try:
@@ -850,89 +881,84 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ExpressionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_expression
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class BinaryExpressionContext(ExpressionContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.ExpressionContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.ExpressionContext
             super().__init__(parser)
-            self.left = None # Token
-            self.op = None # BQueryOpContext
-            self.right = None # GroupContext
+            self.left = None  # Token
+            self.op = None  # BQueryOpContext
+            self.right = None  # GroupContext
             self.copyFrom(ctx)
 
-        def ACTIVITY(self, i:int=None):
+        def ACTIVITY(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.ACTIVITY)
             else:
                 return self.getToken(vqlParser.ACTIVITY, i)
+
         def bQueryOp(self):
-            return self.getTypedRuleContext(vqlParser.BQueryOpContext,0)
+            return self.getTypedRuleContext(vqlParser.BQueryOpContext, 0)
 
         def group(self):
-            return self.getTypedRuleContext(vqlParser.GroupContext,0)
+            return self.getTypedRuleContext(vqlParser.GroupContext, 0)
 
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBinaryExpression" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterBinaryExpression"):
                 listener.enterBinaryExpression(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBinaryExpression" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitBinaryExpression"):
                 listener.exitBinaryExpression(self)
 
-
     class UnaryExpressionContext(ExpressionContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.ExpressionContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.ExpressionContext
             super().__init__(parser)
-            self.activity = None # GroupContext
-            self.op = None # UQueryOpContext
+            self.activity = None  # GroupContext
+            self.op = None  # UQueryOpContext
             self.copyFrom(ctx)
 
         def group(self):
-            return self.getTypedRuleContext(vqlParser.GroupContext,0)
+            return self.getTypedRuleContext(vqlParser.GroupContext, 0)
 
         def uQueryOp(self):
-            return self.getTypedRuleContext(vqlParser.UQueryOpContext,0)
+            return self.getTypedRuleContext(vqlParser.UQueryOpContext, 0)
 
         def ACTIVITY(self):
             return self.getToken(vqlParser.ACTIVITY, 0)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUnaryExpression" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterUnaryExpression"):
                 listener.enterUnaryExpression(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUnaryExpression" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitUnaryExpression"):
                 listener.exitUnaryExpression(self)
 
-
-
     def expression(self):
-
         localctx = vqlParser.ExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 14, self.RULE_expression)
         try:
             self.state = 100
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 5, self._ctx)
             if la_ == 1:
                 localctx = vqlParser.UnaryExpressionContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
@@ -984,7 +1010,6 @@ class vqlParser ( Parser ):
                 localctx.right = self.match(vqlParser.ACTIVITY)
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -993,77 +1018,70 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class LeafContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_leaf
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class QuantifiedExpressionContext(LeafContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.LeafContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.LeafContext
             super().__init__(parser)
-            self.exp = None # ExpressionContext
-            self.quant = None # QuantifierContext
+            self.exp = None  # ExpressionContext
+            self.quant = None  # QuantifierContext
             self.copyFrom(ctx)
 
         def expression(self):
-            return self.getTypedRuleContext(vqlParser.ExpressionContext,0)
+            return self.getTypedRuleContext(vqlParser.ExpressionContext, 0)
 
         def quantifier(self):
-            return self.getTypedRuleContext(vqlParser.QuantifierContext,0)
+            return self.getTypedRuleContext(vqlParser.QuantifierContext, 0)
 
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterQuantifiedExpression" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterQuantifiedExpression"):
                 listener.enterQuantifiedExpression(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitQuantifiedExpression" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitQuantifiedExpression"):
                 listener.exitQuantifiedExpression(self)
 
-
     class SimpleExpressionContext(LeafContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.LeafContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.LeafContext
             super().__init__(parser)
-            self.exp = None # ExpressionContext
+            self.exp = None  # ExpressionContext
             self.copyFrom(ctx)
 
         def expression(self):
-            return self.getTypedRuleContext(vqlParser.ExpressionContext,0)
+            return self.getTypedRuleContext(vqlParser.ExpressionContext, 0)
 
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSimpleExpression" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterSimpleExpression"):
                 listener.enterSimpleExpression(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSimpleExpression" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitSimpleExpression"):
                 listener.exitSimpleExpression(self)
 
-
-
     def leaf(self):
-
         localctx = vqlParser.LeafContext(self, self._ctx, self.state)
         self.enterRule(localctx, 16, self.RULE_leaf)
         try:
             self.state = 106
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 6, self._ctx)
             if la_ == 1:
                 localctx = vqlParser.SimpleExpressionContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
@@ -1080,7 +1098,6 @@ class vqlParser ( Parser ):
                 localctx.quant = self.quantifier()
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1089,36 +1106,33 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ImplyBlockContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.neg = None # Token
+            self.neg = None  # Token
 
         def leaf(self):
-            return self.getTypedRuleContext(vqlParser.LeafContext,0)
-
+            return self.getTypedRuleContext(vqlParser.LeafContext, 0)
 
         def LPAR(self):
             return self.getToken(vqlParser.LPAR, 0)
 
         def dnfClause(self):
-            return self.getTypedRuleContext(vqlParser.DnfClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.DnfClauseContext, 0)
 
         def RPAR(self):
             return self.getToken(vqlParser.RPAR, 0)
 
         def cnfClause(self):
-            return self.getTypedRuleContext(vqlParser.CnfClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.CnfClauseContext, 0)
 
         def impliesClause(self):
-            return self.getTypedRuleContext(vqlParser.ImpliesClauseContext,0)
-
+            return self.getTypedRuleContext(vqlParser.ImpliesClauseContext, 0)
 
         def NOT(self):
             return self.getToken(vqlParser.NOT, 0)
@@ -1126,25 +1140,21 @@ class vqlParser ( Parser ):
         def getRuleIndex(self):
             return vqlParser.RULE_implyBlock
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterImplyBlock" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterImplyBlock"):
                 listener.enterImplyBlock(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitImplyBlock" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitImplyBlock"):
                 listener.exitImplyBlock(self)
 
-
-
-
     def implyBlock(self):
-
         localctx = vqlParser.ImplyBlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 18, self.RULE_implyBlock)
         try:
             self.state = 136
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,7,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 7, self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 108
@@ -1217,7 +1227,6 @@ class vqlParser ( Parser ):
                 self.match(vqlParser.RPAR)
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1226,42 +1235,38 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ImpliesClauseContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.lBlock = None # ImplyBlockContext
-            self.rBlock = None # ImplyBlockContext
+            self.lBlock = None  # ImplyBlockContext
+            self.rBlock = None  # ImplyBlockContext
 
         def IMPLIES(self):
             return self.getToken(vqlParser.IMPLIES, 0)
 
-        def implyBlock(self, i:int=None):
+        def implyBlock(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.ImplyBlockContext)
             else:
-                return self.getTypedRuleContext(vqlParser.ImplyBlockContext,i)
-
+                return self.getTypedRuleContext(vqlParser.ImplyBlockContext, i)
 
         def getRuleIndex(self):
             return vqlParser.RULE_impliesClause
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterImpliesClause" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterImpliesClause"):
                 listener.enterImpliesClause(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitImpliesClause" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitImpliesClause"):
                 listener.exitImpliesClause(self)
 
-
-
-
     def impliesClause(self):
-
         localctx = vqlParser.ImpliesClauseContext(self, self._ctx, self.state)
         self.enterRule(localctx, 20, self.RULE_impliesClause)
         try:
@@ -1281,63 +1286,61 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class DnfClauseContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self._leaf = None # LeafContext
-            self.leafs = list() # of LeafContexts
-            self.negleafs = list() # of LeafContexts
-            self._cnfClause = None # CnfClauseContext
-            self.clauses = list() # of CnfClauseContexts
-            self._impliesClause = None # ImpliesClauseContext
-            self.implyClauses = list() # of ImpliesClauseContexts
-            self.negclauses = list() # of CnfClauseContexts
-            self.negimplyClauses = list() # of ImpliesClauseContexts
+            self._leaf = None  # LeafContext
+            self.leafs = list()  # of LeafContexts
+            self.negleafs = list()  # of LeafContexts
+            self._cnfClause = None  # CnfClauseContext
+            self.clauses = list()  # of CnfClauseContexts
+            self._impliesClause = None  # ImpliesClauseContext
+            self.implyClauses = list()  # of ImpliesClauseContexts
+            self.negclauses = list()  # of CnfClauseContexts
+            self.negimplyClauses = list()  # of ImpliesClauseContexts
 
-        def NOT(self, i:int=None):
+        def NOT(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.NOT)
             else:
                 return self.getToken(vqlParser.NOT, i)
 
-        def LPAR(self, i:int=None):
+        def LPAR(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.LPAR)
             else:
                 return self.getToken(vqlParser.LPAR, i)
 
-        def RPAR(self, i:int=None):
+        def RPAR(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.RPAR)
             else:
                 return self.getToken(vqlParser.RPAR, i)
 
-        def leaf(self, i:int=None):
+        def leaf(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.LeafContext)
             else:
-                return self.getTypedRuleContext(vqlParser.LeafContext,i)
+                return self.getTypedRuleContext(vqlParser.LeafContext, i)
 
-
-        def cnfClause(self, i:int=None):
+        def cnfClause(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.CnfClauseContext)
             else:
-                return self.getTypedRuleContext(vqlParser.CnfClauseContext,i)
+                return self.getTypedRuleContext(vqlParser.CnfClauseContext, i)
 
-
-        def impliesClause(self, i:int=None):
+        def impliesClause(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.ImpliesClauseContext)
             else:
-                return self.getTypedRuleContext(vqlParser.ImpliesClauseContext,i)
+                return self.getTypedRuleContext(vqlParser.ImpliesClauseContext, i)
 
-
-        def OR(self, i:int=None):
+        def OR(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.OR)
             else:
@@ -1346,27 +1349,23 @@ class vqlParser ( Parser ):
         def getRuleIndex(self):
             return vqlParser.RULE_dnfClause
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDnfClause" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterDnfClause"):
                 listener.enterDnfClause(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDnfClause" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitDnfClause"):
                 listener.exitDnfClause(self)
 
-
-
-
     def dnfClause(self):
-
         localctx = vqlParser.DnfClauseContext(self, self._ctx, self.state)
         self.enterRule(localctx, 22, self.RULE_dnfClause)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 166
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,8,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 8, self._ctx)
             if la_ == 1:
                 self.state = 142
                 localctx._leaf = self.leaf()
@@ -1429,8 +1428,7 @@ class vqlParser ( Parser ):
                 self.match(vqlParser.RPAR)
                 pass
 
-
-            self.state = 195 
+            self.state = 195
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
@@ -1439,7 +1437,7 @@ class vqlParser ( Parser ):
 
                 self.state = 193
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,9,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input, 9, self._ctx)
                 if la_ == 1:
                     self.state = 169
                     localctx._leaf = self.leaf()
@@ -1502,11 +1500,10 @@ class vqlParser ( Parser ):
                     self.match(vqlParser.RPAR)
                     pass
 
-
-                self.state = 197 
+                self.state = 197
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==vqlParser.OR):
+                if not (_la == vqlParser.OR):
                     break
 
         except RecognitionException as re:
@@ -1517,63 +1514,61 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class CnfClauseContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self._leaf = None # LeafContext
-            self.leafs = list() # of LeafContexts
-            self.negleafs = list() # of LeafContexts
-            self._dnfClause = None # DnfClauseContext
-            self.clauses = list() # of DnfClauseContexts
-            self._impliesClause = None # ImpliesClauseContext
-            self.implyClauses = list() # of ImpliesClauseContexts
-            self.negclauses = list() # of DnfClauseContexts
-            self.negimplyClauses = list() # of ImpliesClauseContexts
+            self._leaf = None  # LeafContext
+            self.leafs = list()  # of LeafContexts
+            self.negleafs = list()  # of LeafContexts
+            self._dnfClause = None  # DnfClauseContext
+            self.clauses = list()  # of DnfClauseContexts
+            self._impliesClause = None  # ImpliesClauseContext
+            self.implyClauses = list()  # of ImpliesClauseContexts
+            self.negclauses = list()  # of DnfClauseContexts
+            self.negimplyClauses = list()  # of ImpliesClauseContexts
 
-        def NOT(self, i:int=None):
+        def NOT(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.NOT)
             else:
                 return self.getToken(vqlParser.NOT, i)
 
-        def LPAR(self, i:int=None):
+        def LPAR(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.LPAR)
             else:
                 return self.getToken(vqlParser.LPAR, i)
 
-        def RPAR(self, i:int=None):
+        def RPAR(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.RPAR)
             else:
                 return self.getToken(vqlParser.RPAR, i)
 
-        def leaf(self, i:int=None):
+        def leaf(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.LeafContext)
             else:
-                return self.getTypedRuleContext(vqlParser.LeafContext,i)
+                return self.getTypedRuleContext(vqlParser.LeafContext, i)
 
-
-        def dnfClause(self, i:int=None):
+        def dnfClause(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.DnfClauseContext)
             else:
-                return self.getTypedRuleContext(vqlParser.DnfClauseContext,i)
+                return self.getTypedRuleContext(vqlParser.DnfClauseContext, i)
 
-
-        def impliesClause(self, i:int=None):
+        def impliesClause(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(vqlParser.ImpliesClauseContext)
             else:
-                return self.getTypedRuleContext(vqlParser.ImpliesClauseContext,i)
+                return self.getTypedRuleContext(vqlParser.ImpliesClauseContext, i)
 
-
-        def AND(self, i:int=None):
+        def AND(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.AND)
             else:
@@ -1582,27 +1577,23 @@ class vqlParser ( Parser ):
         def getRuleIndex(self):
             return vqlParser.RULE_cnfClause
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCnfClause" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterCnfClause"):
                 listener.enterCnfClause(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCnfClause" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitCnfClause"):
                 listener.exitCnfClause(self)
 
-
-
-
     def cnfClause(self):
-
         localctx = vqlParser.CnfClauseContext(self, self._ctx, self.state)
         self.enterRule(localctx, 24, self.RULE_cnfClause)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 223
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 11, self._ctx)
             if la_ == 1:
                 self.state = 199
                 localctx._leaf = self.leaf()
@@ -1665,8 +1656,7 @@ class vqlParser ( Parser ):
                 self.match(vqlParser.RPAR)
                 pass
 
-
-            self.state = 252 
+            self.state = 252
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
@@ -1675,7 +1665,7 @@ class vqlParser ( Parser ):
 
                 self.state = 250
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input, 12, self._ctx)
                 if la_ == 1:
                     self.state = 226
                     localctx._leaf = self.leaf()
@@ -1738,11 +1728,10 @@ class vqlParser ( Parser ):
                     self.match(vqlParser.RPAR)
                     pass
 
-
-                self.state = 254 
+                self.state = 254
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==vqlParser.AND):
+                if not (_la == vqlParser.AND):
                     break
 
         except RecognitionException as re:
@@ -1753,174 +1742,187 @@ class vqlParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class GroupContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
-
 
         def getRuleIndex(self):
             return vqlParser.RULE_group
 
-     
-        def copyFrom(self, ctx:ParserRuleContext):
+        def copyFrom(self, ctx: ParserRuleContext):
             super().copyFrom(ctx)
 
-
-
     class AnyGroupContext(GroupContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.GroupContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.GroupContext
             super().__init__(parser)
-            self._ACTIVITY = None # Token
-            self.activityList = list() # of Tokens
+            self._ACTIVITY = None  # Token
+            self.activityList = list()  # of Tokens
             self.copyFrom(ctx)
 
         def ANY(self):
             return self.getToken(vqlParser.ANY, 0)
+
         def LCBRACKET(self):
             return self.getToken(vqlParser.LCBRACKET, 0)
+
         def RCBRACKET(self):
             return self.getToken(vqlParser.RCBRACKET, 0)
-        def ACTIVITY(self, i:int=None):
+
+        def ACTIVITY(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.ACTIVITY)
             else:
                 return self.getToken(vqlParser.ACTIVITY, i)
-        def COMMA(self, i:int=None):
+
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.COMMA)
             else:
                 return self.getToken(vqlParser.COMMA, i)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAnyGroup" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAnyGroup"):
                 listener.enterAnyGroup(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAnyGroup" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAnyGroup"):
                 listener.exitAnyGroup(self)
 
-
     class InvertedAllGroupContext(GroupContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.GroupContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.GroupContext
             super().__init__(parser)
-            self._ACTIVITY = None # Token
-            self.activityList = list() # of Tokens
+            self._ACTIVITY = None  # Token
+            self.activityList = list()  # of Tokens
             self.copyFrom(ctx)
 
         def GROUPINVERSE(self):
             return self.getToken(vqlParser.GROUPINVERSE, 0)
+
         def ALL(self):
             return self.getToken(vqlParser.ALL, 0)
+
         def LCBRACKET(self):
             return self.getToken(vqlParser.LCBRACKET, 0)
+
         def RCBRACKET(self):
             return self.getToken(vqlParser.RCBRACKET, 0)
-        def ACTIVITY(self, i:int=None):
+
+        def ACTIVITY(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.ACTIVITY)
             else:
                 return self.getToken(vqlParser.ACTIVITY, i)
-        def COMMA(self, i:int=None):
+
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.COMMA)
             else:
                 return self.getToken(vqlParser.COMMA, i)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInvertedAllGroup" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterInvertedAllGroup"):
                 listener.enterInvertedAllGroup(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInvertedAllGroup" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitInvertedAllGroup"):
                 listener.exitInvertedAllGroup(self)
 
-
     class InvertedAnyGroupContext(GroupContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.GroupContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.GroupContext
             super().__init__(parser)
-            self._ACTIVITY = None # Token
-            self.activityList = list() # of Tokens
+            self._ACTIVITY = None  # Token
+            self.activityList = list()  # of Tokens
             self.copyFrom(ctx)
 
         def GROUPINVERSE(self):
             return self.getToken(vqlParser.GROUPINVERSE, 0)
+
         def ANY(self):
             return self.getToken(vqlParser.ANY, 0)
+
         def LCBRACKET(self):
             return self.getToken(vqlParser.LCBRACKET, 0)
+
         def RCBRACKET(self):
             return self.getToken(vqlParser.RCBRACKET, 0)
-        def ACTIVITY(self, i:int=None):
+
+        def ACTIVITY(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.ACTIVITY)
             else:
                 return self.getToken(vqlParser.ACTIVITY, i)
-        def COMMA(self, i:int=None):
+
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.COMMA)
             else:
                 return self.getToken(vqlParser.COMMA, i)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInvertedAnyGroup" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterInvertedAnyGroup"):
                 listener.enterInvertedAnyGroup(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInvertedAnyGroup" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitInvertedAnyGroup"):
                 listener.exitInvertedAnyGroup(self)
 
-
     class AllGroupContext(GroupContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a vqlParser.GroupContext
+        def __init__(
+            self, parser, ctx: ParserRuleContext
+        ):  # actually a vqlParser.GroupContext
             super().__init__(parser)
-            self._ACTIVITY = None # Token
-            self.activityList = list() # of Tokens
+            self._ACTIVITY = None  # Token
+            self.activityList = list()  # of Tokens
             self.copyFrom(ctx)
 
         def ALL(self):
             return self.getToken(vqlParser.ALL, 0)
+
         def LCBRACKET(self):
             return self.getToken(vqlParser.LCBRACKET, 0)
+
         def RCBRACKET(self):
             return self.getToken(vqlParser.RCBRACKET, 0)
-        def ACTIVITY(self, i:int=None):
+
+        def ACTIVITY(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.ACTIVITY)
             else:
                 return self.getToken(vqlParser.ACTIVITY, i)
-        def COMMA(self, i:int=None):
+
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(vqlParser.COMMA)
             else:
                 return self.getToken(vqlParser.COMMA, i)
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAllGroup" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAllGroup"):
                 listener.enterAllGroup(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAllGroup" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAllGroup"):
                 listener.exitAllGroup(self)
 
-
-
     def group(self):
-
         localctx = vqlParser.GroupContext(self, self._ctx, self.state)
         self.enterRule(localctx, 26, self.RULE_group)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.state = 302
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 18, self._ctx)
             if la_ == 1:
                 localctx = vqlParser.AnyGroupContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
@@ -1934,7 +1936,7 @@ class vqlParser ( Parser ):
                 self.state = 263
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==vqlParser.COMMA:
+                while _la == vqlParser.COMMA:
                     self.state = 259
                     self.match(vqlParser.COMMA)
                     self.state = 260
@@ -1963,7 +1965,7 @@ class vqlParser ( Parser ):
                 self.state = 275
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==vqlParser.COMMA:
+                while _la == vqlParser.COMMA:
                     self.state = 271
                     self.match(vqlParser.COMMA)
                     self.state = 272
@@ -1990,7 +1992,7 @@ class vqlParser ( Parser ):
                 self.state = 286
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==vqlParser.COMMA:
+                while _la == vqlParser.COMMA:
                     self.state = 282
                     self.match(vqlParser.COMMA)
                     self.state = 283
@@ -2019,7 +2021,7 @@ class vqlParser ( Parser ):
                 self.state = 298
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==vqlParser.COMMA:
+                while _la == vqlParser.COMMA:
                     self.state = 294
                     self.match(vqlParser.COMMA)
                     self.state = 295
@@ -2033,7 +2035,6 @@ class vqlParser ( Parser ):
                 self.match(vqlParser.RCBRACKET)
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2041,8 +2042,3 @@ class vqlParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

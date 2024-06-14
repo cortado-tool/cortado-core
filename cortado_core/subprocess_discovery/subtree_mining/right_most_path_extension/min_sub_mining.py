@@ -1,20 +1,19 @@
 from collections import defaultdict, deque
 from typing import Mapping
+
+from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_loops
 from cortado_core.subprocess_discovery.subtree_mining.obj import (
     FrequencyCountingStrategy,
 )
 from cortado_core.subprocess_discovery.subtree_mining.three_pattern_candiate_generation import (
     compute_freq3,
 )
-
 from cortado_core.subprocess_discovery.subtree_mining.tree_pattern import TreePattern
-
-from cortado_core.subprocess_discovery.subtree_mining.treebank import TreeBankEntry
-
 from cortado_core.subprocess_discovery.subtree_mining.tree_pruning import (
     compute_f3_pruned_set,
 )
-from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_loops
+from cortado_core.subprocess_discovery.subtree_mining.treebank import TreeBankEntry
+
 
 def min_sub_mining(
     treebank: Mapping[int, TreeBankEntry],
@@ -23,14 +22,15 @@ def min_sub_mining(
     min_sup,
     loop=False,
     bfs_traversal=True,
+    repetition_pairs_mining=None,
 ):
-
     """ """
-
     if loop:
         fold_loops(treebank, loop)
 
-    fSets, F3 = compute_freq3(treebank, frequency_counting_strat, min_sup)
+    fSets, F3, single_act_reps = compute_freq3(
+        treebank, frequency_counting_strat, min_sup, repetition_pairs_mining
+    )
 
     pSets, F3 = compute_f3_pruned_set(fSets, F3)
     k_patterns = defaultdict(set)
@@ -49,11 +49,13 @@ def min_sub_mining(
         tps = tp.right_most_path_extension(pSets)
         sup_to_gain = tp.support
 
-        
         for c in tps:
-            
             if f := c.update_rmo_list(
-                treebank, min_sup, frequency_counting_strat, sup_to_gain
+                treebank,
+                min_sup,
+                frequency_counting_strat,
+                sup_to_gain,
+                repetition_pairs_mining,
             ):
                 if bfs_traversal:
                     Q.appendleft(f)
@@ -61,6 +63,7 @@ def min_sub_mining(
                     Q.append(f)
 
                 k_patterns[tp.size + 1].add(f)
+
                 patterns.add(repr(f.tree))
 
-    return k_patterns
+    return k_patterns, single_act_reps

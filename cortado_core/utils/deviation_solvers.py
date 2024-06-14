@@ -14,15 +14,21 @@ from cortado_core.models.infix_type import InfixType
 from cortado_core.naive_approach import repair_first_deviation
 from cortado_core.process_tree_utils.miscellaneous import is_subtree, get_root
 from cortado_core.utils.alignment_utils import is_log_move, is_sync_move, is_model_move
-from cortado_core.utils.lca_utils import find_lowest_common_ancestor, rediscover_subtree_and_modify_pt
-from cortado_core.utils.sublog_utils import calculate_sublog_for_lca, generate_full_alignment_based_on_infix_alignment
+from cortado_core.utils.lca_utils import (
+    find_lowest_common_ancestor,
+    rediscover_subtree_and_modify_pt,
+)
+from cortado_core.utils.sublog_utils import (
+    calculate_sublog_for_lca,
+    generate_full_alignment_based_on_infix_alignment,
+)
 
 
 class DeviationType(Enum):
-    NONE = 1,
-    ENCLOSED = 2,
-    LEFT_ENCLOSED = 3,
-    RIGHT_ENCLOSED = 4,
+    NONE = (1,)
+    ENCLOSED = (2,)
+    LEFT_ENCLOSED = (3,)
+    RIGHT_ENCLOSED = (4,)
     NOT_ENCLOSED = 5
 
 
@@ -47,9 +53,14 @@ class DeviationSolver(ABC):
         pass
 
     @staticmethod
-    def get_trace_to_add(alignment, lca: ProcessTree, start_idx=None, end_idx=None,
-                         prefix_boundary: Optional[int] = None,
-                         postfix_boundary: Optional[int] = None):
+    def get_trace_to_add(
+        alignment,
+        lca: ProcessTree,
+        start_idx=None,
+        end_idx=None,
+        prefix_boundary: Optional[int] = None,
+        postfix_boundary: Optional[int] = None,
+    ):
         """
         In general, the trace to add is constructed using log-moves and sync-moves that are a subtree of the lca that is
         rediscovered. In most cases, these moves are restricted to begin at the opening of the lca (start_idx) and end
@@ -75,12 +86,12 @@ class DeviationSolver(ABC):
             start_idx = 0
 
         if end_idx is None:
-            end_idx = len(alignment['alignment']) - 1
+            end_idx = len(alignment["alignment"]) - 1
 
         if prefix_boundary is None:
             prefix_boundary = 0
         if postfix_boundary is None:
-            postfix_boundary = len(alignment['alignment'])
+            postfix_boundary = len(alignment["alignment"])
 
         trace_to_add = Trace()
 
@@ -94,9 +105,12 @@ class DeviationSolver(ABC):
                 e = Event()
                 e["concept:name"] = align_step[1][1]
                 trace_to_add.append(e)
-            elif is_model_move(align_step) and (
-                    idx < prefix_boundary or idx > postfix_boundary) \
-                    and is_subtree(lca, align_step[0][1][0]) and align_step[1][1] is not None:
+            elif (
+                is_model_move(align_step)
+                and (idx < prefix_boundary or idx > postfix_boundary)
+                and is_subtree(lca, align_step[0][1][0])
+                and align_step[1][1] is not None
+            ):
                 e = Event()
                 e["concept:name"] = align_step[1][1]
                 trace_to_add.append(e)
@@ -104,13 +118,17 @@ class DeviationSolver(ABC):
         return trace_to_add
 
     @staticmethod
-    def get_alignment_step_index_of_lca_activation(move_i: int, alignment, lca: ProcessTree) -> int:
+    def get_alignment_step_index_of_lca_activation(
+        move_i: int, alignment, lca: ProcessTree
+    ) -> int:
         alignment_step_index_lca_activated = None
         h = move_i - 1
         while h >= 0 and not alignment_step_index_lca_activated:
-            if type(alignment["alignment"][h][0][1]) != str and \
-                    alignment["alignment"][h][0][1][0].id is lca.id and \
-                    alignment["alignment"][h][0][1][1] == "active":
+            if (
+                type(alignment["alignment"][h][0][1]) != str
+                and alignment["alignment"][h][0][1][0].id is lca.id
+                and alignment["alignment"][h][0][1][1] == "active"
+            ):
                 alignment_step_index_lca_activated = h
             h -= 1
 
@@ -119,13 +137,17 @@ class DeviationSolver(ABC):
         return alignment_step_index_lca_activated
 
     @staticmethod
-    def get_alignment_step_index_of_lca_closing(move_i: int, alignment, lca: ProcessTree) -> int:
+    def get_alignment_step_index_of_lca_closing(
+        move_i: int, alignment, lca: ProcessTree
+    ) -> int:
         alignment_step_index_lca_closed = None
         j = move_i + 1
         while j < len(alignment["alignment"]) and not alignment_step_index_lca_closed:
-            if type(alignment["alignment"][j][0][1]) != str and \
-                    alignment["alignment"][j][0][1][0].id is lca.id and \
-                    alignment["alignment"][j][0][1][1] == "closed":
+            if (
+                type(alignment["alignment"][j][0][1]) != str
+                and alignment["alignment"][j][0][1][0].id is lca.id
+                and alignment["alignment"][j][0][1][1] == "closed"
+            ):
                 alignment_step_index_lca_closed = j
             j += 1
         assert alignment_step_index_lca_closed is not None
@@ -152,9 +174,9 @@ class EnclosedDeviationSolverTrace(DeviationSolver):
         self.pool = pool
 
     def solve(self, deviation: Deviation, pt: ProcessTree, log):
-        lca, process_tree_modified = find_lowest_common_ancestor(deviation.left_node[0],
-                                                                 deviation.right_node[0],
-                                                                 self.try_pulldown)
+        lca, process_tree_modified = find_lowest_common_ancestor(
+            deviation.left_node[0], deviation.right_node[0], self.try_pulldown
+        )
         lca_is_leaf_node = len(lca.children) == 0
         if lca_is_leaf_node:
             lca = lca.parent
@@ -166,17 +188,34 @@ class EnclosedDeviationSolverTrace(DeviationSolver):
             # process tree was modified, recalculation of the alignment is needed
             return get_root(lca)
 
-        alignment_step_index_lca_activated = DeviationSolver.get_alignment_step_index_of_lca_activation(
-            deviation.deviation_index, deviation.alignment, lca)
-        alignment_step_index_lca_closed = DeviationSolver.get_alignment_step_index_of_lca_closing(
-            deviation.deviation_index, deviation.alignment, lca)
+        alignment_step_index_lca_activated = (
+            DeviationSolver.get_alignment_step_index_of_lca_activation(
+                deviation.deviation_index, deviation.alignment, lca
+            )
+        )
+        alignment_step_index_lca_closed = (
+            DeviationSolver.get_alignment_step_index_of_lca_closing(
+                deviation.deviation_index, deviation.alignment, lca
+            )
+        )
 
-        trace_to_add = DeviationSolver.get_trace_to_add(deviation.alignment, lca,
-                                                        alignment_step_index_lca_activated + 1,
-                                                        alignment_step_index_lca_closed - 1)
+        trace_to_add = DeviationSolver.get_trace_to_add(
+            deviation.alignment,
+            lca,
+            alignment_step_index_lca_activated + 1,
+            alignment_step_index_lca_closed - 1,
+        )
 
-        sublog = calculate_sublog_for_lca(pt, log, lca, deviation.alignment, deviation.deviation_index, trace_to_add,
-                                          InfixType.NOT_AN_INFIX, self.pool)
+        sublog = calculate_sublog_for_lca(
+            pt,
+            log,
+            lca,
+            deviation.alignment,
+            deviation.deviation_index,
+            trace_to_add,
+            InfixType.NOT_AN_INFIX,
+            self.pool,
+        )
 
         pt = rediscover_subtree_and_modify_pt(lca, sublog)
         return pt
@@ -202,8 +241,9 @@ class EnclosedDeviationSolverInfix(DeviationSolver):
     def solve(self, deviation: Deviation, pt: ProcessTree, log):
         left_node, left_dev_idx = deviation.left_node
         right_node, right_dev_idx = deviation.right_node
-        lca, process_tree_modified = find_lowest_common_ancestor(left_node, right_node,
-                                                                 try_pulling_lca_down=self.try_pulling_down_lca)
+        lca, process_tree_modified = find_lowest_common_ancestor(
+            left_node, right_node, try_pulling_lca_down=self.try_pulling_down_lca
+        )
         lca_is_leaf_node = len(lca.children) == 0
         if lca_is_leaf_node:
             lca = lca.parent
@@ -212,21 +252,39 @@ class EnclosedDeviationSolverInfix(DeviationSolver):
             # process tree was modified, recalculation of the alignment is needed
             return get_root(lca)
 
-        full_alignment = generate_full_alignment_based_on_infix_alignment(self.infix_type, deviation.alignment)
-        left_dev_idx_full_alignment = left_dev_idx + full_alignment['prefix_length']
-        right_dev_idx_full_alignment = right_dev_idx + full_alignment['prefix_length']
+        full_alignment = generate_full_alignment_based_on_infix_alignment(
+            self.infix_type, deviation.alignment
+        )
+        left_dev_idx_full_alignment = left_dev_idx + full_alignment["prefix_length"]
+        right_dev_idx_full_alignment = right_dev_idx + full_alignment["prefix_length"]
 
-        left_idx = DeviationSolver.get_alignment_step_index_of_lca_activation(left_dev_idx_full_alignment,
-                                                                              full_alignment, lca)
-        right_idx = DeviationSolver.get_alignment_step_index_of_lca_closing(right_dev_idx_full_alignment,
-                                                                            full_alignment, lca)
-        trace_to_add = DeviationSolver.get_trace_to_add(full_alignment, lca, left_idx, right_idx,
-                                                        prefix_boundary=full_alignment['prefix_length'],
-                                                        postfix_boundary=len(full_alignment['alignment']) - 1 -
-                                                                         full_alignment['postfix_length'])
+        left_idx = DeviationSolver.get_alignment_step_index_of_lca_activation(
+            left_dev_idx_full_alignment, full_alignment, lca
+        )
+        right_idx = DeviationSolver.get_alignment_step_index_of_lca_closing(
+            right_dev_idx_full_alignment, full_alignment, lca
+        )
+        trace_to_add = DeviationSolver.get_trace_to_add(
+            full_alignment,
+            lca,
+            left_idx,
+            right_idx,
+            prefix_boundary=full_alignment["prefix_length"],
+            postfix_boundary=len(full_alignment["alignment"])
+            - 1
+            - full_alignment["postfix_length"],
+        )
 
-        sublog = calculate_sublog_for_lca(pt, log, lca, deviation.alignment, deviation.deviation_index, trace_to_add,
-                                          self.infix_type, self.pool)
+        sublog = calculate_sublog_for_lca(
+            pt,
+            log,
+            lca,
+            deviation.alignment,
+            deviation.deviation_index,
+            trace_to_add,
+            self.infix_type,
+            self.pool,
+        )
 
         return rediscover_subtree_and_modify_pt(lca, sublog)
 
@@ -239,15 +297,19 @@ class LeftEnclosedDeviationSolver(DeviationSolver):
 
     def solve(self, deviation: Deviation, pt: ProcessTree, log):
         left_node, left_dev_idx = deviation.left_node
-        trace_to_add = DeviationSolver.get_trace_to_add(deviation.alignment, left_node, left_dev_idx)
+        trace_to_add = DeviationSolver.get_trace_to_add(
+            deviation.alignment, left_node, left_dev_idx
+        )
 
         trace_leaf_node = Trace()
         if left_node.label is not None:
             event_leaf_node = Event()
-            event_leaf_node['concept:name'] = left_node.label
+            event_leaf_node["concept:name"] = left_node.label
             trace_leaf_node.append(event_leaf_node)
 
-        return rediscover_subtree_and_modify_pt(left_node, EventLog([trace_to_add, trace_leaf_node]))
+        return rediscover_subtree_and_modify_pt(
+            left_node, EventLog([trace_to_add, trace_leaf_node])
+        )
 
 
 class RightEnclosedDeviationSolver(DeviationSolver):
@@ -258,15 +320,19 @@ class RightEnclosedDeviationSolver(DeviationSolver):
 
     def solve(self, deviation: Deviation, pt: ProcessTree, log):
         right_node, right_dev_idx = deviation.right_node
-        trace_to_add = DeviationSolver.get_trace_to_add(deviation.alignment, right_node, None, right_dev_idx)
+        trace_to_add = DeviationSolver.get_trace_to_add(
+            deviation.alignment, right_node, None, right_dev_idx
+        )
 
         trace_leaf_node = Trace()
         if right_node.label is not None:
             event_leaf_node = Event()
-            event_leaf_node['concept:name'] = right_node.label
+            event_leaf_node["concept:name"] = right_node.label
             trace_leaf_node.append(event_leaf_node)
 
-        return rediscover_subtree_and_modify_pt(right_node, EventLog([trace_to_add, trace_leaf_node]))
+        return rediscover_subtree_and_modify_pt(
+            right_node, EventLog([trace_to_add, trace_leaf_node])
+        )
 
 
 class FallbackDeviationSolverInfix(DeviationSolver):
@@ -285,7 +351,12 @@ class FallbackDeviationSolverInfix(DeviationSolver):
         return new_root
 
 
-def get_deviation_solver(deviation: Deviation, infix_type: InfixType, try_pulling_lca_down: bool, pool: Optional[Pool]):
+def get_deviation_solver(
+    deviation: Deviation,
+    infix_type: InfixType,
+    try_pulling_lca_down: bool,
+    pool: Optional[Pool],
+):
     """
     Factory-method that returns the correct DeviationSolver for the present deviation.
     Parameters
@@ -299,7 +370,7 @@ def get_deviation_solver(deviation: Deviation, infix_type: InfixType, try_pullin
     -------
 
     """
-    match (deviation.type, infix_type):
+    match deviation.type, infix_type:
         case DeviationType.NONE, _:
             return NoDeviationSolver()
         case DeviationType.ENCLOSED, InfixType.NOT_AN_INFIX:

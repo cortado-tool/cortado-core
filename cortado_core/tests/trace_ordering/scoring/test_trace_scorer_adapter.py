@@ -12,13 +12,22 @@ from cortado_core.utils.split_graph import SequenceGroup, LeafGroup, ParallelGro
 
 class TraceScorerAdapterTest(unittest.TestCase):
     class MockTraceScorer(TraceScorer):
-        def score(self, log: EventLog, previously_added_traces: List[Trace], process_tree: ProcessTree,
-                  trace_candidate: Trace) -> float:
+        def score(
+            self,
+            log: EventLog,
+            previously_added_traces: List[Trace],
+            process_tree: ProcessTree,
+            trace_candidate: Trace,
+        ) -> float:
             return 1
 
     def test_adapter_runs_scorer_for_each_sequentialization(self):
         variant = SequenceGroup(
-            [LeafGroup(['a']), ParallelGroup([LeafGroup(['b']), LeafGroup(['c']), LeafGroup(['a'])])])
+            [
+                LeafGroup(["a"]),
+                ParallelGroup([LeafGroup(["b"]), LeafGroup(["c"]), LeafGroup(["a"])]),
+            ]
+        )
         trace_scorer = TraceScorerAdapterTest.MockTraceScorer()
         scorer = TraceScorerAdapter(trace_scorer, statistic=sum)
 
@@ -27,7 +36,11 @@ class TraceScorerAdapterTest(unittest.TestCase):
 
     def test_adapter_applies_statistic_function(self):
         variant = SequenceGroup(
-            [LeafGroup(['a']), ParallelGroup([LeafGroup(['b']), LeafGroup(['c']), LeafGroup(['a'])])])
+            [
+                LeafGroup(["a"]),
+                ParallelGroup([LeafGroup(["b"]), LeafGroup(["c"]), LeafGroup(["a"])]),
+            ]
+        )
         trace_scorer = TraceScorerAdapterTest.MockTraceScorer()
         scorer = TraceScorerAdapter(trace_scorer, statistic=statistics.mean)
 

@@ -3,13 +3,11 @@ from typing import List, Set
 
 
 class LOperator(Enum):
-
     AND = "AND"
     OR = "OR"
 
 
 class UnaryOperator(Enum):
-
     contains = "has"
     isStart = "startsWith"
     isEnd = "endsWith"
@@ -36,14 +34,12 @@ class QueryTree:
         return self.print()
 
     def sort(self):
-
         if isinstance(self, OperatorNode):
             self.sort()
 
         return self
 
     def set_height(self):
-
         if isinstance(self, OperatorNode):
             self.height = max([e.set_height() for e in self.children]) + 1
 
@@ -70,7 +66,6 @@ class QueryTree:
         return s
 
     def get_nLeafs(self):
-
         if isinstance(self, OperatorNode):
             return sum([e.get_nLeafs() for e in self.children])
 
@@ -78,7 +73,6 @@ class QueryTree:
             return self.get_nLeafs()
 
     def get_nNodes(self):
-
         if isinstance(self, OperatorNode):
             return sum([e.get_nNodes() for e in self.children])
 
@@ -86,7 +80,6 @@ class QueryTree:
             return self.get_nNodes()
 
     def get_nExpressions(self):
-
         if isinstance(self, OperatorNode):
             return sum([e.get_nExpressions() for e in self.children])
 
@@ -114,7 +107,6 @@ class ExpressionLeaf(QueryTree):
         super()
 
     def __str__(self):
-
         if isinstance(self, UnaryExpressionLeaf):
             return str(self)
 
@@ -128,7 +120,6 @@ class ExpressionLeaf(QueryTree):
         return 1
 
     def get_nExpressions(self):
-
         if isinstance(self, UnaryExpressionLeaf):
             return len(self.activities)
 
@@ -150,7 +141,6 @@ class AnyGroup(ExpressionGroup):
         self.inv = inv
 
     def __str__(self):
-
         res = "[" + ", ".join(self) + "]"
 
         if self.inv:
@@ -159,7 +149,6 @@ class AnyGroup(ExpressionGroup):
         return res
 
     def copy(self):
-
         return AnyGroup(self, self.inv)
 
 
@@ -169,7 +158,6 @@ class AllGroup(ExpressionGroup):
         self.inv = inv
 
     def __str__(self):
-
         res = "{" + ", ".join(self) + "}"
 
         if self.inv:
@@ -178,7 +166,6 @@ class AllGroup(ExpressionGroup):
         return res
 
     def copy(self):
-
         return AllGroup(self, self.inv)
 
 
@@ -191,7 +178,6 @@ class UnaryExpressionLeaf(ExpressionLeaf):
         qOp=None,
         number=None,
     ):
-
         self.operator = operator
         self.activities = activities
         self.neg = negated
@@ -210,7 +196,6 @@ class UnaryExpressionLeaf(ExpressionLeaf):
         return UnaryExpressionLeaf(self.activities, self.operator, self.neg)
 
     def __str__(self):
-
         s = ""
 
         if self.neg:
@@ -233,7 +218,6 @@ class BinaryExpressionLeaf(ExpressionLeaf):
         qOp=None,
         number=None,
     ):
-
         self.operator = operator
         self.lactivities = lActivities
         self.ractivities = rActivities

@@ -6,12 +6,17 @@ from pm4py.objects.log.obj import EventLog
 from pm4py.objects.process_tree.obj import ProcessTree, Operator
 from pm4py.algo.discovery.inductive import algorithm as inductive_miner
 
-from cortado_core.process_tree_utils.miscellaneous import get_index_of_pt_in_children_list, get_root
+from cortado_core.process_tree_utils.miscellaneous import (
+    get_index_of_pt_in_children_list,
+    get_root,
+)
 
 DEBUG = False
 
 
-def find_lowest_common_ancestor(pt1: ProcessTree, pt2: ProcessTree, try_pulling_lca_down) -> Tuple[ProcessTree, bool]:
+def find_lowest_common_ancestor(
+    pt1: ProcessTree, pt2: ProcessTree, try_pulling_lca_down
+) -> Tuple[ProcessTree, bool]:
     """
     Finds the lowest common ancestor (LCA) of two given process trees
     If try_pull_down=true, LCA is tried to move one level down in the process tree (Note: this alteration of the process
@@ -63,25 +68,39 @@ def find_lowest_common_ancestor(pt1: ProcessTree, pt2: ProcessTree, try_pulling_
 
             lca_changed = False
             if try_pulling_lca_down and lca is not pt1 and lca is not pt2:
-                index_children_containing_pt1 = get_index_of_pt_in_children_list(lca, ancestors_pt1[i - 1])
-                index_children_containing_pt2 = get_index_of_pt_in_children_list(lca, ancestors_pt2[j - 1])
-                lca, lca_changed = __try_pulling_down_lca(lca, index_children_containing_pt1,
-                                                          index_children_containing_pt2)
+                index_children_containing_pt1 = get_index_of_pt_in_children_list(
+                    lca, ancestors_pt1[i - 1]
+                )
+                index_children_containing_pt2 = get_index_of_pt_in_children_list(
+                    lca, ancestors_pt2[j - 1]
+                )
+                lca, lca_changed = __try_pulling_down_lca(
+                    lca, index_children_containing_pt1, index_children_containing_pt2
+                )
             return lca, lca_changed
     raise Exception("lowest common ancestor could not be found")
 
 
-def __try_pulling_down_lca(lca: ProcessTree, index_children_containing_pt1: int,
-                           index_children_containing_pt2: int) -> Tuple[ProcessTree, bool]:
+def __try_pulling_down_lca(
+    lca: ProcessTree,
+    index_children_containing_pt1: int,
+    index_children_containing_pt2: int,
+) -> Tuple[ProcessTree, bool]:
     if DEBUG:
         tree_vis.view(tree_vis.apply(lca, parameters={"format": "svg"}))
     max_idx = max(index_children_containing_pt1, index_children_containing_pt2)
     min_idx = min(index_children_containing_pt1, index_children_containing_pt2)
     assert max_idx != min_idx
     # if lca has only two children no need to pull down. if all lca children would be pulled down, do not pull down
-    if lca.operator == Operator.SEQUENCE and len(lca.children) > 2 and max_idx - min_idx + 1 < len(lca.children):
-        children_to_move_down: List[ProcessTree] = lca.children[min_idx:max_idx + 1]
-        new_sequence = ProcessTree(operator=Operator.SEQUENCE, parent=lca, children=children_to_move_down)
+    if (
+        lca.operator == Operator.SEQUENCE
+        and len(lca.children) > 2
+        and max_idx - min_idx + 1 < len(lca.children)
+    ):
+        children_to_move_down: List[ProcessTree] = lca.children[min_idx : max_idx + 1]
+        new_sequence = ProcessTree(
+            operator=Operator.SEQUENCE, parent=lca, children=children_to_move_down
+        )
         for moved_down_pt in children_to_move_down:
             moved_down_pt.parent = new_sequence
         new_lca_children: List[ProcessTree] = []
@@ -89,7 +108,7 @@ def __try_pulling_down_lca(lca: ProcessTree, index_children_containing_pt1: int,
             new_lca_children.extend(lca.children[:min_idx])
         new_lca_children.append(new_sequence)
         if max_idx + 1 < len(lca.children):
-            new_lca_children.extend(lca.children[max_idx + 1:])
+            new_lca_children.extend(lca.children[max_idx + 1 :])
         for c in new_lca_children:
             c.parent = lca
         lca.children = new_lca_children
@@ -98,12 +117,19 @@ def __try_pulling_down_lca(lca: ProcessTree, index_children_containing_pt1: int,
         return lca, True
 
     elif lca.operator == Operator.XOR and len(lca.children) > 2:
-        children_containing_pt1: ProcessTree = lca.children[index_children_containing_pt1]
-        children_containing_pt2: ProcessTree = lca.children[index_children_containing_pt2]
+        children_containing_pt1: ProcessTree = lca.children[
+            index_children_containing_pt1
+        ]
+        children_containing_pt2: ProcessTree = lca.children[
+            index_children_containing_pt2
+        ]
         lca.children.remove(children_containing_pt1)
         lca.children.remove(children_containing_pt2)
-        new_xor = ProcessTree(operator=Operator.XOR, parent=lca,
-                              children=[children_containing_pt1, children_containing_pt2])
+        new_xor = ProcessTree(
+            operator=Operator.XOR,
+            parent=lca,
+            children=[children_containing_pt1, children_containing_pt2],
+        )
         children_containing_pt1.parent = new_xor
         children_containing_pt2.parent = new_xor
         lca.children.append(new_xor)
@@ -112,12 +138,19 @@ def __try_pulling_down_lca(lca: ProcessTree, index_children_containing_pt1: int,
         return lca, True
 
     elif lca.operator == Operator.PARALLEL and len(lca.children) > 2:
-        children_containing_pt1: ProcessTree = lca.children[index_children_containing_pt1]
-        children_containing_pt2: ProcessTree = lca.children[index_children_containing_pt2]
+        children_containing_pt1: ProcessTree = lca.children[
+            index_children_containing_pt1
+        ]
+        children_containing_pt2: ProcessTree = lca.children[
+            index_children_containing_pt2
+        ]
         lca.children.remove(children_containing_pt1)
         lca.children.remove(children_containing_pt2)
-        new_par = ProcessTree(operator=Operator.PARALLEL, parent=lca,
-                              children=[children_containing_pt1, children_containing_pt2])
+        new_par = ProcessTree(
+            operator=Operator.PARALLEL,
+            parent=lca,
+            children=[children_containing_pt1, children_containing_pt2],
+        )
         children_containing_pt1.parent = new_par
         children_containing_pt2.parent = new_par
         lca.children.append(new_par)
@@ -129,7 +162,9 @@ def __try_pulling_down_lca(lca: ProcessTree, index_children_containing_pt1: int,
         return lca, False
 
 
-def rediscover_subtree_and_modify_pt(subtree: ProcessTree, sublog: EventLog) -> ProcessTree:
+def rediscover_subtree_and_modify_pt(
+    subtree: ProcessTree, sublog: EventLog
+) -> ProcessTree:
     assert type(subtree) is ProcessTree
     assert type(sublog) is EventLog
 
@@ -137,7 +172,9 @@ def rediscover_subtree_and_modify_pt(subtree: ProcessTree, sublog: EventLog) -> 
     # detach old subtree and add rediscovered subtree
     logging.debug("rediscovered subtree:", rediscovered_subtree)
     if DEBUG:
-        tree_vis.view(tree_vis.apply(rediscovered_subtree, parameters={"format": "svg"}))
+        tree_vis.view(
+            tree_vis.apply(rediscovered_subtree, parameters={"format": "svg"})
+        )
     if subtree.parent:
         index = get_index_of_pt_in_children_list(subtree.parent, subtree)
         subtree.parent.children[index] = rediscovered_subtree

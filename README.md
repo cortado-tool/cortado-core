@@ -12,8 +12,37 @@ Please refer to the [website of Cortado](https://cortado.fit.fraunhofer.de) that
 
 ## Using Cortado-Core in Another Project
 * Cortado-core can be used as a dependency in other Python-projects
-* Install cortado-core via `pip install 'cortado-core @ git+https://github.com/cortado-tool/cortado-core.git@main'`
+* Install cortado-core via `pip install 'cortado-core @ git+https://github.com/cortado-tool/cortado-core.git@master'`
 
+# Contributing
+
+## Unit Testing and Code Quality
+
+We highly value code quality and reliability in our project. To ensure this, our GitLab pipeline includes unit testing using `pytest` and linting using `black`.
+
+### GitLab Pipeline
+
+Our GitLab pipeline automatically performs essential checks whenever code changes are pushed to the repository.
+
+#### Unit Tests
+
+The pipeline's `unit_tests` stage is responsible for running unit tests using `pytest`. It ensures that our codebase remains robust and free from logical errors. If any tests fail, the pipeline provides prompt feedback, enabling us to quickly identify and address any issues.
+
+#### Code Linting
+
+We're committed to maintaining consistent code formatting and style. The pipeline includes a linting stage that uses `black`, a powerful code formatter for Python. This ensures that our code adheres to a unified and clean style, enhancing readability and maintainability.
+
+### Running Unit Tests Locally
+
+You can also run the `pytest` unit tests locally on your development environment. Ensure you have `pytest` installed, and then navigate to the project's root directory and run: `pytest cortado_core/tests/`
+
+This will execute the unit tests and provide you with immediate feedback on their status.
+
+### Development and Code Formatting
+During development, we encourage you to utilize black for code formatting. The black tool helps maintain a consistent style across our codebase and minimizes formatting-related discussions. It's recommended to run black on your code before committing changes. You can do so using the following command:
+`black .`
+
+By incorporating black into your workflow, you contribute to maintaining a clean and organized codebase.
 
 ## Citing Cortado
 

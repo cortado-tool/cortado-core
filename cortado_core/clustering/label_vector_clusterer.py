@@ -11,7 +11,9 @@ class LabelVectorClusterer(Clusterer):
     def __init__(self, n_clusters: int):
         self.n_clusters = n_clusters
 
-    def calculate_clusters(self, variants: List[ConcurrencyTree]) -> List[List[ConcurrencyTree]]:
+    def calculate_clusters(
+        self, variants: List[ConcurrencyTree]
+    ) -> List[List[ConcurrencyTree]]:
         X = self.__calculate_feature_matrix(variants)
         result = KMeans(n_clusters=self.n_clusters).fit(X)
 
@@ -39,8 +41,9 @@ class LabelVectorClusterer(Clusterer):
 
         return X
 
-    def __get_labels_for_variant(self, variant: ConcurrencyTree, result_dict: Optional[Dict[str, int]] = None) -> Dict[
-        str, int]:
+    def __get_labels_for_variant(
+        self, variant: ConcurrencyTree, result_dict: Optional[Dict[str, int]] = None
+    ) -> Dict[str, int]:
         if result_dict is None:
             result_dict = defaultdict(int)
 

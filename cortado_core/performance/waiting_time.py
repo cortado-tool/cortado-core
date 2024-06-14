@@ -11,7 +11,9 @@ def get_completing_nodes(tree: ProcessTree):
     if tree.operator == Operator.SEQUENCE:
         return get_completing_nodes(tree.children[-1])
     if tree.operator in [Operator.PARALLEL, Operator.XOR]:
-        return [completing for n in tree.children for completing in get_completing_nodes(n)]
+        return [
+            completing for n in tree.children for completing in get_completing_nodes(n)
+        ]
     if tree.operator == Operator.LOOP:
         return get_completing_nodes(tree.children[0])
     assert False, f"tree operator {tree.operator} not implemented"

@@ -30,9 +30,11 @@ def is_subtree(pt: ProcessTree, potential_subtree_of_pt: ProcessTree) -> bool:
 
 def is_leaf_node(process_tree: ProcessTree) -> bool:
     # TODO investigate if addition from comment causes any problems
-    return process_tree is not None and \
-           len(process_tree.children) == 0 and \
-           process_tree.operator is None
+    return (
+        process_tree is not None
+        and len(process_tree.children) == 0
+        and process_tree.operator is None
+    )
 
 
 def get_root(process_tree: ProcessTree) -> ProcessTree:
@@ -61,7 +63,9 @@ def get_number_silent_leaves(process_tree: ProcessTree) -> int:
     if not process_tree.children and process_tree.label is None:
         return 1
     else:
-        children: List[int] = [get_number_silent_leaves(c) for c in process_tree.children]
+        children: List[int] = [
+            get_number_silent_leaves(c) for c in process_tree.children
+        ]
         return sum(children)
 
 
@@ -86,7 +90,9 @@ def get_pt_node_height(node: ProcessTree) -> int:
         return 0
 
 
-def subtree_is_part_of_tree_based_on_obj_id(subtree: ProcessTree, tree: ProcessTree) -> bool:
+def subtree_is_part_of_tree_based_on_obj_id(
+    subtree: ProcessTree, tree: ProcessTree
+) -> bool:
     if subtree is tree:
         return True
     else:
@@ -108,7 +114,9 @@ def subtree_contained_in_tree(subtree: ProcessTree, tree: ProcessTree) -> bool:
         return res
 
 
-def replace_tree_in_children(parent_tree: ProcessTree, old_tree: ProcessTree, new_tree: ProcessTree) -> ProcessTree:
+def replace_tree_in_children(
+    parent_tree: ProcessTree, old_tree: ProcessTree, new_tree: ProcessTree
+) -> ProcessTree:
     for i in range(len(parent_tree.children)):
         if parent_tree.children[i] is old_tree:
             parent_tree.children[i] = new_tree
@@ -118,10 +126,24 @@ def replace_tree_in_children(parent_tree: ProcessTree, old_tree: ProcessTree, ne
 
 
 def is_tau_leaf(pt: ProcessTree):
-    return (pt.children == [] or pt.children is None) and pt.operator is None and pt.label == None
+    return (
+        (pt.children == [] or pt.children is None)
+        and pt.operator is None
+        and pt.label == None
+    )
 
 
-def get_all_leaf_node_labels(tree: ProcessTree, all_labels=None, duplicated_labels=None) -> Tuple[Set[str], Set[str]]:
+def is_visible_leaf(pt: ProcessTree):
+    return (
+        (pt.children == [] or pt.children is None)
+        and pt.operator is None
+        and pt.label is not None
+    )
+
+
+def get_all_leaf_node_labels(
+    tree: ProcessTree, all_labels=None, duplicated_labels=None
+) -> Tuple[Set[str], Set[str]]:
     if all_labels is None:
         all_labels: Set = set()
     if duplicated_labels is None:

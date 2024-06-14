@@ -1,6 +1,10 @@
 from pm4py.objects.log.obj import EventLog, Event, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
-from pm4py.objects.log.util.xes import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TIMESTAMP_KEY, DEFAULT_NAME_KEY
+from pm4py.objects.log.util.xes import (
+    DEFAULT_START_TIMESTAMP_KEY,
+    DEFAULT_TIMESTAMP_KEY,
+    DEFAULT_NAME_KEY,
+)
 
 from cortado_core.performance.aggregators import stats
 from cortado_core.utils.cvariants import ACTIVITY_INSTANCE_KEY, SubvariantNode
@@ -16,7 +20,7 @@ class WaitingTimeEvent:
     start: SubvariantNode
     complete: SubvariantNode
     performance_stats: Any
-    anchor: str = 'complete'
+    anchor: str = "complete"
 
     def __hash__(self):
         return hash((self.start, self.complete))
@@ -32,18 +36,27 @@ class SubvariantWithPerformance:
     global_performance_stats: Any
 
 
-def calculate_subvariant_performance(subvariant, traces, time_granularity: TimeUnit) -> SubvariantWithPerformance:
+def calculate_subvariant_performance(
+    subvariant, traces, time_granularity: TimeUnit
+) -> SubvariantWithPerformance:
     log = EventLog(traces)
     log = to_interval(log)
 
     global_stats = __get_global_performance_stats(log, time_granularity)
     service_times_per_activity = __get_service_times_per_activity(log, time_granularity)
 
-    subvariant_with_service_times = __append_service_time_to_subvariant(subvariant, service_times_per_activity)
-    waiting_time_events = calculate_waiting_time_events(subvariant, traces, time_granularity)
+    subvariant_with_service_times = __append_service_time_to_subvariant(
+        subvariant, service_times_per_activity
+    )
+    waiting_time_events = calculate_waiting_time_events(
+        subvariant, traces, time_granularity
+    )
 
-    return SubvariantWithPerformance(subvariant_with_service_times, waiting_time_events,
-                                     global_performance_stats=global_stats)
+    return SubvariantWithPerformance(
+        subvariant_with_service_times,
+        waiting_time_events,
+        global_performance_stats=global_stats,
+    )
 
 
 def __get_global_performance_stats(interval_log: EventLog, time_granularity: TimeUnit):
@@ -53,8 +66,12 @@ def __get_global_performance_stats(interval_log: EventLog, time_granularity: Tim
 
     for trace in interval_log:
         for event in trace:
-            start_timestamp = transform_timestamp(event[DEFAULT_START_TIMESTAMP_KEY], time_granularity)
-            complete_timestamp = transform_timestamp(event[DEFAULT_TIMESTAMP_KEY], time_granularity)
+            start_timestamp = transform_timestamp(
+                event[DEFAULT_START_TIMESTAMP_KEY], time_granularity
+            )
+            complete_timestamp = transform_timestamp(
+                event[DEFAULT_TIMESTAMP_KEY], time_granularity
+            )
 
             if min_timestamp is None or start_timestamp < min_timestamp:
                 min_timestamp = start_timestamp
@@ -70,7 +87,9 @@ def __get_global_performance_stats(interval_log: EventLog, time_granularity: Tim
     return stats(durations)
 
 
-def __get_service_times_per_activity(interval_log: EventLog, time_granularity: TimeUnit):
+def __get_service_times_per_activity(
+    interval_log: EventLog, time_granularity: TimeUnit
+):
     service_times_per_activity = defaultdict(dict)
 
     for trace in interval_log:
@@ -79,15 +98,22 @@ def __get_service_times_per_activity(interval_log: EventLog, time_granularity: T
             activity = event[DEFAULT_NAME_KEY]
             activity_instance = event[ACTIVITY_INSTANCE_KEY]
 
-            service_times_per_activity[activity][activity_instance] = service_times_per_activity[activity].get(
-                activity_instance, []) + [service_time]
+            service_times_per_activity[activity][
+                activity_instance
+            ] = service_times_per_activity[activity].get(activity_instance, []) + [
+                service_time
+            ]
 
     return service_times_per_activity
 
 
 def __calculate_service_time(event: Event, time_granularity: TimeUnit) -> int:
-    start_timestamp = transform_timestamp(event[DEFAULT_START_TIMESTAMP_KEY], time_granularity)
-    complete_timestamp = transform_timestamp(event[DEFAULT_TIMESTAMP_KEY], time_granularity)
+    start_timestamp = transform_timestamp(
+        event[DEFAULT_START_TIMESTAMP_KEY], time_granularity
+    )
+    complete_timestamp = transform_timestamp(
+        event[DEFAULT_TIMESTAMP_KEY], time_granularity
+    )
 
     return (complete_timestamp - start_timestamp).total_seconds()
 
@@ -101,11 +127,14 @@ def __append_service_time_to_subvariant(subvariant, service_times_per_activity):
     """
     for parallel_subvariant_nodes in subvariant:
         for subvariant_node in parallel_subvariant_nodes:
-            if subvariant_node.lifecycle == 'start':
+            if subvariant_node.lifecycle == "start":
                 continue
 
             subvariant_node.performance_stats = stats(
-                service_times_per_activity[subvariant_node.activity][subvariant_node.activity_instance])
+                service_times_per_activity[subvariant_node.activity][
+                    subvariant_node.activity_instance
+                ]
+            )
 
     return subvariant
 
@@ -113,7 +142,9 @@ def __append_service_time_to_subvariant(subvariant, service_times_per_activity):
 def calculate_waiting_time_events(subvariant, traces, time_granularity: TimeUnit):
     waiting_time_events = get_waiting_time_events(subvariant)
 
-    return add_performance_to_waiting_time_events(waiting_time_events, traces, time_granularity)
+    return add_performance_to_waiting_time_events(
+        waiting_time_events, traces, time_granularity
+    )
 
 
 def get_waiting_time_events(subvariant) -> List[WaitingTimeEvent]:
@@ -123,8 +154,12 @@ def get_waiting_time_events(subvariant) -> List[WaitingTimeEvent]:
         predecessor_part = subvariant[i]
         successor_part = subvariant[i + 1]
 
-        forward_looking_wt_events = get_waiting_time_events_forward_looking(predecessor_part, successor_part)
-        backward_looking_wt_events = get_waiting_time_events_backward_looking(predecessor_part, successor_part)
+        forward_looking_wt_events = get_waiting_time_events_forward_looking(
+            predecessor_part, successor_part
+        )
+        backward_looking_wt_events = get_waiting_time_events_backward_looking(
+            predecessor_part, successor_part
+        )
 
         if len(backward_looking_wt_events) >= len(forward_looking_wt_events):
             waiting_time_events += backward_looking_wt_events
@@ -139,8 +174,10 @@ def get_waiting_time_events_backward_looking(predecessor_part, successor_part):
     predecessor_node = get_predecessor_start_node(predecessor_part)
 
     for subvariant_node in successor_part:
-        if subvariant_node.lifecycle == 'start':
-            waiting_time_events.append(WaitingTimeEvent(predecessor_node, subvariant_node, None, 'complete'))
+        if subvariant_node.lifecycle == "start":
+            waiting_time_events.append(
+                WaitingTimeEvent(predecessor_node, subvariant_node, None, "complete")
+            )
 
     return waiting_time_events
 
@@ -150,47 +187,65 @@ def get_waiting_time_events_forward_looking(predecessor_part, successor_part):
     successor_node = get_successor_complete_node(successor_part)
 
     for subvariant_node in predecessor_part:
-        if subvariant_node.lifecycle == 'complete':
-            waiting_time_events.append(WaitingTimeEvent(subvariant_node, successor_node, None, 'start'))
+        if subvariant_node.lifecycle == "complete":
+            waiting_time_events.append(
+                WaitingTimeEvent(subvariant_node, successor_node, None, "start")
+            )
 
     return waiting_time_events
 
 
-def get_predecessor_start_node(subvariant_group: List[SubvariantNode]) -> SubvariantNode:
+def get_predecessor_start_node(
+    subvariant_group: List[SubvariantNode],
+) -> SubvariantNode:
     for node in subvariant_group:
-        if node.lifecycle == 'complete':
+        if node.lifecycle == "complete":
             return node
 
     return subvariant_group[0]
 
 
-def get_successor_complete_node(subvariant_group: List[SubvariantNode]) -> SubvariantNode:
+def get_successor_complete_node(
+    subvariant_group: List[SubvariantNode],
+) -> SubvariantNode:
     for node in subvariant_group:
-        if node.lifecycle == 'start':
+        if node.lifecycle == "start":
             return node
 
     return subvariant_group[0]
 
 
-def add_performance_to_waiting_time_events(waiting_time_events: List[WaitingTimeEvent], traces,
-                                           time_granularity: TimeUnit):
+def add_performance_to_waiting_time_events(
+    waiting_time_events: List[WaitingTimeEvent], traces, time_granularity: TimeUnit
+):
     traces_as_act_instance_dicts = traces_to_activity_instance_dicts(traces)
 
     for waiting_time_event in waiting_time_events:
         waiting_times = []
         for trace_as_instance_dict in traces_as_act_instance_dicts:
-            start_timestamp_key = DEFAULT_START_TIMESTAMP_KEY if waiting_time_event.start.lifecycle == "start" else DEFAULT_TIMESTAMP_KEY
-            start_timestamp = \
-                trace_as_instance_dict[waiting_time_event.start.activity, waiting_time_event.start.activity_instance][
-                    start_timestamp_key]
+            start_timestamp_key = (
+                DEFAULT_START_TIMESTAMP_KEY
+                if waiting_time_event.start.lifecycle == "start"
+                else DEFAULT_TIMESTAMP_KEY
+            )
+            start_timestamp = trace_as_instance_dict[
+                waiting_time_event.start.activity,
+                waiting_time_event.start.activity_instance,
+            ][start_timestamp_key]
             start_timestamp = transform_timestamp(start_timestamp, time_granularity)
 
-            complete_timestamp_key = DEFAULT_START_TIMESTAMP_KEY if waiting_time_event.complete.lifecycle == "start" else DEFAULT_TIMESTAMP_KEY
-            complete_timestamp = \
-                trace_as_instance_dict[
-                    waiting_time_event.complete.activity, waiting_time_event.complete.activity_instance][
-                    complete_timestamp_key]
-            complete_timestamp = transform_timestamp(complete_timestamp, time_granularity)
+            complete_timestamp_key = (
+                DEFAULT_START_TIMESTAMP_KEY
+                if waiting_time_event.complete.lifecycle == "start"
+                else DEFAULT_TIMESTAMP_KEY
+            )
+            complete_timestamp = trace_as_instance_dict[
+                waiting_time_event.complete.activity,
+                waiting_time_event.complete.activity_instance,
+            ][complete_timestamp_key]
+            complete_timestamp = transform_timestamp(
+                complete_timestamp, time_granularity
+            )
 
             waiting_time = (complete_timestamp - start_timestamp).total_seconds()
             waiting_times.append(waiting_time)

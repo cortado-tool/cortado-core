@@ -10,7 +10,9 @@ class RateFilter(Filter):
         self.filter_rate = filter_rate
 
     def filter(self, ordered_candidates: List[Group]) -> List[Group]:
-        n_remaining_candidates = max(1, math.ceil(self.filter_rate * len(ordered_candidates)))
+        n_remaining_candidates = max(
+            1, math.ceil(self.filter_rate * len(ordered_candidates))
+        )
         n_deleted_candidates = len(ordered_candidates) - n_remaining_candidates
 
         return ordered_candidates[n_deleted_candidates:]
