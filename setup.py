@@ -56,7 +56,7 @@ setup(
         "tqdm==4.64.1",
         "scikit-learn==1.1.3",
         "zss==1.2.0",
-        "numpy>=1.21.2",
+        "numpy>=1.21.2,<2.0.0",
     ],
     python_requires=">=3.10",
 )

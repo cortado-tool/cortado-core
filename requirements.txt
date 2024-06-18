@@ -1,5 +1,5 @@
 matplotlib==3.6.2
-numpy>=1.21.2
+numpy>=1.21.2,<2.0.0
 cycler
 networkx==3.0rc1
 pm4py==2.4.1
