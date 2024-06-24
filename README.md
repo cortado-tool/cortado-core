@@ -2,7 +2,6 @@
 
 **Cortado-core is a Python library that implements various algorithms and methods for interactive/incremental process discovery.**
 Cortado-core is part of the software tool Cortado.
-Please refer to the [website of Cortado](https://cortado.fit.fraunhofer.de) that contains a list of publications on algorithms implemented in cortado-core. 
 
 ## Setup
 * Install Python 3.10.x (https://www.python.org/downloads/). Make sure to install a 64-BIT version.
@@ -18,19 +17,19 @@ Please refer to the [website of Cortado](https://cortado.fit.fraunhofer.de) that
 
 ## Unit Testing and Code Quality
 
-We highly value code quality and reliability in our project. To ensure this, our GitLab pipeline includes unit testing using `pytest` and linting using `black`.
+We highly value code quality and reliability in our project. To ensure this, our Github workflow includes unit testing using `pytest` and linting using `black`.
 
-### GitLab Pipeline
+### Github Workflow
 
-Our GitLab pipeline automatically performs essential checks whenever code changes are pushed to the repository.
+Our Github workflow automatically performs essential checks whenever code changes are pushed to the repository.
 
 #### Unit Tests
 
-The pipeline's `unit_tests` stage is responsible for running unit tests using `pytest`. It ensures that our codebase remains robust and free from logical errors. If any tests fail, the pipeline provides prompt feedback, enabling us to quickly identify and address any issues.
+The job `unit_tests` is responsible for running unit tests using `pytest`. It ensures that our codebase remains robust and free from logical errors. If any tests fail, the workflow provides prompt feedback, enabling us to quickly identify and address any issues.
 
 #### Code Linting
 
-We're committed to maintaining consistent code formatting and style. The pipeline includes a linting stage that uses `black`, a powerful code formatter for Python. This ensures that our code adheres to a unified and clean style, enhancing readability and maintainability.
+We're committed to maintaining consistent code formatting and style. The workflow includes a linting job that uses `black`, a powerful code formatter for Python. This ensures that our code adheres to a unified and clean style, enhancing readability and maintainability.
 
 ### Running Unit Tests Locally
 
@@ -43,6 +42,23 @@ During development, we encourage you to utilize black for code formatting. The b
 `black .`
 
 By incorporating black into your workflow, you contribute to maintaining a clean and organized codebase.
+
+## Relevant Publications for Cortado
+
+| Publication                                                                                                                        | Authors                                                             | Year | Relevant source code                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---- | -------------------------------------------------------------------------------------------------- |
+| [Defining and visualizing process execution variants from partially ordered event data](https://doi.org/10.1016/j.ins.2023.119958) | Schuster, D., Zerbato, F., van Zelst, S.J., van der Aalst, W.M.P.   | 2024 |                                                                                                    |
+| [Incremental Discovery of Process Models Using Trace Fragments](https://doi.org/10.1007/978-3-031-41620-0_4)                       | Schuster, D., Föcking, N., van Zelst, S.J., van der Aalst, W.M.P.   | 2023 | [cortado_core/lca_approach.py](cortado_core/lca_approach.py)                                       |
+| [Mining Frequent Infix Patterns from Concurrency-Aware Process Execution Variant](https://doi.org/10.14778/3603581.3603603)        | Martini, M., Schuster, D., Wil M. P. van der Aalst                  | 2023 | [cortado_core/eventually_follows_pattern_mining/](cortado_core/eventually_follows_pattern_mining/) |
+| [Cortado: A dedicated process mining tool for interactive process discovery](https://doi.org/10.1016/j.softx.2023.101373)          | Schuster, D., van Zelst, S.J., van der Aalst, W.M.P.                | 2023 |                                                                                                    |
+| [Control-Flow-Based Querying of Process Executions from Partially Ordered Event Data](https://doi.org/10.1007/978-3-031-20984-0_2) | Schuster, D., Martini, M., van Zelst, S.J., van der Aalst, W.M.P.   | 2022 | [cortado_core/variant_query_language/](cortado_core/variant_query_language/)                       |
+| [Conformance Checking for Trace Fragments Using Infix and Postfix Alignments](https://doi.org/10.1007/978-3-031-17834-4_18)        | Schuster, D., Föcking, N., van Zelst, S.J., van der Aalst, W.M.P.   | 2022 | [cortado_core/alignments/](cortado_core/alignments/)                                               |
+| [Temporal Performance Analysis for Block-Structured Process Models in Cortado](https://doi.org/10.1007/978-3-031-07481-3_13)       | Schuster, D., Schade, L., van Zelst, S.J., van der Aalst, W.M.P.    | 2022 | [cortado_core/performance/](cortado_core/performance/)                                             |
+| [A Generic Trace Ordering Framework for Incremental Process Discovery](https://doi.org/10.1007/978-3-031-01333-1_21)               | Schuster, D., Domnitsch, E., van Zelst, S.J., van der Aalst, W.M.P. | 2022 | [cortado_core/trace_ordering/](cortado_core/trace_ordering/)                                       |
+| [Freezing Sub-models During Incremental Process Discovery](https://doi.org/10.1007/978-3-030-89022-3_2)                            | Schuster, D., van Zelst, S.J., van der Aalst, W.M.P.                | 2021 | [cortado_core/freezing/](cortado_core/freezing/)                                                   |
+| [Visualizing Trace Variants from Partially Ordered Event Data](https://doi.org/10.1007/978-3-030-98581-3_3)                        | Schuster, D., Schade, L., van Zelst, S.J., van der Aalst, W.M.P.    | 2021 | [cortado_core/utils/](cortado_core/utils/)                                                         |
+| [Cortado—An Interactive Tool for Data-Driven Process Discovery and Modeling](https://doi.org/10.1007/978-3-030-76983-3_23)         | Schuster, D., van Zelst, S.J., van der Aalst, W.M.P.                | 2021 |                                                                                                    |
+| [Incremental Discovery of Hierarchical Process Models](https://doi.org/10.1007/978-3-030-50316-1_25)                               | Schuster, D., van Zelst, S.J., van der Aalst, W.M.P.                | 2020 |                                                                                                    |
 
 ## Citing Cortado
 
@@ -58,11 +74,11 @@ By incorporating black into your workflow, you contribute to maintaining a clean
   DOI [10.1007/978-3-030-76983-3_23](https://doi.org/10.1007/978-3-030-76983-3_23)
 
 
-* If you are using or referencing a specific algorithm implemented in Cortado/Cortado-Core in your scientific work, please cite the corresponding publication, cf. [website of Cortado](https://cortado.fit.fraunhofer.de).
+* If you are using or referencing a specific algorithm implemented in Cortado/cortado-core in your scientific work, please cite the corresponding publication.
 
 
 ## Contact
 
-If you are interested in Cortado, get in touch if you have any questions or custom request via [Mail - daniel.schuster@fit.fraunhofer.de](mailto:daniel.schuster@fit.fraunhofer.de)
+If you are interested in Cortado, get in touch if you have any questions or custom request via Mail - [daniel.schuster@fit.fraunhofer.de](mailto:daniel.schuster@fit.fraunhofer.de)
 
 
