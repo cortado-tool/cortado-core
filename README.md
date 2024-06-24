@@ -1,5 +1,8 @@
 # Cortado-Core
 
+![lint workflow](https://github.com/cortado-tool/cortado-core/actions/workflows/lint.yml/badge.svg)
+![test workflow](https://github.com/cortado-tool/cortado-core/actions/workflows/test.yml/badge.svg)
+
 **Cortado-core is a Python library that implements various algorithms and methods for interactive/incremental process discovery.**
 Cortado-core is part of the software tool Cortado.
 
