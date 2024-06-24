@@ -71,17 +71,17 @@ def add_trace_to_pt_language_with_freezing(
         activities_in_log: Iterable[str] = set(
             [e["concept:name"] for t in log for e in t.trace]
         )
-        frozen_subtrees_replacement_label: OrderedDict[
-            Tuple[ProcessTree, int], str
-        ] = OrderedDict()
+        frozen_subtrees_replacement_label: OrderedDict[Tuple[ProcessTree, int], str] = (
+            OrderedDict()
+        )
 
         for frozen_subtree in frozen_subtrees:
             replacement_label = str(id(frozen_subtree))
             # TODO create function that ensures replacement_label not in activities_in_log
             assert replacement_label not in activities_in_log
-            frozen_subtrees_replacement_label[
-                pt_dict_key(frozen_subtree)
-            ] = replacement_label
+            frozen_subtrees_replacement_label[pt_dict_key(frozen_subtree)] = (
+                replacement_label
+            )
 
         incremental_projected_logs: Dict[FrozenSet[Tuple[ProcessTree, int]], EventLog]
         final_projected_log: EventLog

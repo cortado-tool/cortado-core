@@ -181,10 +181,10 @@ def reinsert_frozen_subtrees(
                     )
                 assert inserted_parallel is not None
 
-                replaced_leaves: Dict[
-                    Tuple[ProcessTree, int], str
-                ] = replace_activation_and_closing_by_tau(
-                    insert_candidate, replacement_label
+                replaced_leaves: Dict[Tuple[ProcessTree, int], str] = (
+                    replace_activation_and_closing_by_tau(
+                        insert_candidate, replacement_label
+                    )
                 )
 
                 pt = get_root(pt)

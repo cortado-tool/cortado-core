@@ -34,9 +34,9 @@ def _get_prune_sets(fSets: FrequentActivitySets, F) -> PruningSets:
     }
 
     operatorActivityPrune = {}
-    operatorActivityPrune[
-        cTreeOperator.Sequential
-    ] = fSets.fA  # Use fA as dfNest does not take into account leafs only following
+    operatorActivityPrune[cTreeOperator.Sequential] = (
+        fSets.fA
+    )  # Use fA as dfNest does not take into account leafs only following
     operatorActivityPrune[cTreeOperator.Fallthrough] = fSets.fA
     operatorActivityPrune[cTreeOperator.Concurrent] = fSets.fA
 

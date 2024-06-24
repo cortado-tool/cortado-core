@@ -47,9 +47,9 @@ def project_log(
         alignments.append(alignment)
 
     replaced_frozen_subtrees: List[Tuple[ProcessTree, int]] = []
-    incrementally_projected_logs: Dict[
-        FrozenSet[Tuple[ProcessTree, int]], EventLog
-    ] = {}
+    incrementally_projected_logs: Dict[FrozenSet[Tuple[ProcessTree, int]], EventLog] = (
+        {}
+    )
     final_projected_log: EventLog
 
     for frozen_subtree in frozen_subtrees:

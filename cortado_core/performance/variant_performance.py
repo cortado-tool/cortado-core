@@ -44,9 +44,11 @@ def assign_variant_service_time(
             continue
         e_start = min(
             t_events,
-            key=lambda e: e[DEFAULT_START_TIMESTAMP_KEY]
-            if DEFAULT_START_TIMESTAMP_KEY in e
-            else e[DEFAULT_TIMESTAMP_KEY],
+            key=lambda e: (
+                e[DEFAULT_START_TIMESTAMP_KEY]
+                if DEFAULT_START_TIMESTAMP_KEY in e
+                else e[DEFAULT_TIMESTAMP_KEY]
+            ),
         )
         e_end = max(t_events, key=lambda e: e[DEFAULT_TIMESTAMP_KEY])
 
@@ -93,9 +95,11 @@ def get_wait_time_between(g1: Group, g2: Group, traces: List[Trace]):
         g1_end = max(t_events_g1, key=lambda e: e[DEFAULT_TIMESTAMP_KEY])
         g2_start = min(
             t_events_g2,
-            key=lambda e: e[DEFAULT_START_TIMESTAMP_KEY]
-            if DEFAULT_START_TIMESTAMP_KEY in e
-            else e[DEFAULT_TIMESTAMP_KEY],
+            key=lambda e: (
+                e[DEFAULT_START_TIMESTAMP_KEY]
+                if DEFAULT_START_TIMESTAMP_KEY in e
+                else e[DEFAULT_TIMESTAMP_KEY]
+            ),
         )
         wait_time = (
             g2_start[DEFAULT_START_TIMESTAMP_KEY] - g1_end[DEFAULT_TIMESTAMP_KEY]
@@ -114,9 +118,11 @@ def assign_wait_times_parallel(
     def get_start(trace):
         start = min(
             trace,
-            key=lambda e: e[DEFAULT_START_TIMESTAMP_KEY]
-            if DEFAULT_START_TIMESTAMP_KEY in e
-            else e[DEFAULT_TIMESTAMP_KEY],
+            key=lambda e: (
+                e[DEFAULT_START_TIMESTAMP_KEY]
+                if DEFAULT_START_TIMESTAMP_KEY in e
+                else e[DEFAULT_TIMESTAMP_KEY]
+            ),
         )
         return (
             start[DEFAULT_START_TIMESTAMP_KEY]
@@ -139,9 +145,11 @@ def assign_wait_times_parallel(
         for (start, end), trace_g in zip(start_ends, events_g):
             start_g = min(
                 trace_g,
-                key=lambda e: e[DEFAULT_START_TIMESTAMP_KEY]
-                if DEFAULT_START_TIMESTAMP_KEY in e
-                else e[DEFAULT_TIMESTAMP_KEY],
+                key=lambda e: (
+                    e[DEFAULT_START_TIMESTAMP_KEY]
+                    if DEFAULT_START_TIMESTAMP_KEY in e
+                    else e[DEFAULT_TIMESTAMP_KEY]
+                ),
             )
             end_g = max(trace_g, key=lambda e: e[DEFAULT_TIMESTAMP_KEY])
 

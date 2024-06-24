@@ -21,32 +21,40 @@ class PerformanceHelpers:
     @staticmethod
     def to_seconds(d: Tuple[datetime, datetime]):
         return [
-            (d[0] - datetime.fromtimestamp(0)).total_seconds()
-            if d[0] is not None
-            else None,
-            (d[1] - datetime.fromtimestamp(0)).total_seconds()
-            if d[1] is not None
-            else None,
+            (
+                (d[0] - datetime.fromtimestamp(0)).total_seconds()
+                if d[0] is not None
+                else None
+            ),
+            (
+                (d[1] - datetime.fromtimestamp(0)).total_seconds()
+                if d[1] is not None
+                else None
+            ),
         ]
 
     @staticmethod
     def timestamps_to_seconds_multi_interval(multi_interval):
         return {
             t: [
-                [
+                (
                     [
-                        [
-                            PerformanceHelpers.to_seconds(interval)
-                            for interval in intervals
-                        ]
-                        for intervals in instances
+                        (
+                            [
+                                [
+                                    PerformanceHelpers.to_seconds(interval)
+                                    for interval in intervals
+                                ]
+                                for intervals in instances
+                            ]
+                            if instances
+                            else None
+                        )
+                        for instances in alignments
                     ]
-                    if instances
+                    if alignments
                     else None
-                    for instances in alignments
-                ]
-                if alignments
-                else None
+                )
                 for alignments in cases
             ]
             for t, cases in multi_interval.items()
@@ -56,17 +64,21 @@ class PerformanceHelpers:
     def timestamps_to_seconds_single_interval(single_interval):
         return {
             t: [
-                list(
+                (
                     list(
-                        PerformanceHelpers.to_seconds(interval)
-                        for interval in instances
+                        (
+                            list(
+                                PerformanceHelpers.to_seconds(interval)
+                                for interval in instances
+                            )
+                            if instances
+                            else None
+                        )
+                        for instances in alignments
                     )
-                    if instances
+                    if alignments
                     else None
-                    for instances in alignments
                 )
-                if alignments
-                else None
                 for alignments in cases
             ]
             for t, cases in single_interval.items()

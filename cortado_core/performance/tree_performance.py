@@ -239,12 +239,16 @@ def compute_performance_trace(
             self_complete_event = alignment_events[self_index_end]
             service_time_intervals = [
                 [
-                    self_start_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_start_event
-                    else None,
-                    self_complete_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_complete_event
-                    else None,
+                    (
+                        self_start_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_start_event
+                        else None
+                    ),
+                    (
+                        self_complete_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_complete_event
+                        else None
+                    ),
                 ]
             ]
         else:
@@ -315,22 +319,30 @@ def compute_performance_trace(
         if max_enabling == -1:
             waiting_times.append(
                 (
-                    self_start_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_start_event
-                    else None,
-                    self_start_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_start_event
-                    else None,
+                    (
+                        self_start_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_start_event
+                        else None
+                    ),
+                    (
+                        self_start_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_start_event
+                        else None
+                    ),
                 )
             )
             cycle_times.append(
                 [
-                    self_start_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_start_event
-                    else None,
-                    self_complete_event[DEFAULT_TIMESTAMP_KEY]
-                    if self_complete_event
-                    else None,
+                    (
+                        self_start_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_start_event
+                        else None
+                    ),
+                    (
+                        self_complete_event[DEFAULT_TIMESTAMP_KEY]
+                        if self_complete_event
+                        else None
+                    ),
                 ]
             )
             continue
@@ -344,9 +356,11 @@ def compute_performance_trace(
         cycle_times.append(
             [
                 enabling_event[DEFAULT_TIMESTAMP_KEY] if enabling_event else None,
-                self_complete_event[DEFAULT_TIMESTAMP_KEY]
-                if self_complete_event
-                else None,
+                (
+                    self_complete_event[DEFAULT_TIMESTAMP_KEY]
+                    if self_complete_event
+                    else None
+                ),
             ]
         )
 
@@ -490,9 +504,9 @@ def get_all_alignments(
     for variant in tqdm(variants):
         v_trace = variant_to_trace(variant)
         if alignment_time_limit is not None:
-            alignment_params[
-                net_alignment.Parameters.PARAM_MAX_ALIGN_TIME_TRACE
-            ] = alignment_time_limit
+            alignment_params[net_alignment.Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = (
+                alignment_time_limit
+            )
         alignment_params[
             net_alignment.Parameters.PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE
         ] = True

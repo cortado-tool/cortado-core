@@ -51,9 +51,9 @@ class FullOccurrenceStore:
     ):
         self.trees = trees
         # pattern_id -> tree_index -> list(occurrences sorted by preorder id of pattern))
-        self.occurrence_lists: Dict[
-            int, Dict[int, List[List[ConcurrencyTree]]]
-        ] = dict()
+        self.occurrence_lists: Dict[int, Dict[int, List[List[ConcurrencyTree]]]] = (
+            dict()
+        )
         self.counting_strategy = counting_strategy
         self.min_support_count = min_support_count
         self.is_transaction_based_counting = isinstance(

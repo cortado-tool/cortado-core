@@ -71,9 +71,9 @@ def project_trace(
     #     assert pt_1 != pt_2  # TODO discuss if there is a solution to not require pt_1 != pt_2
 
     # prepare frozen_subtrees, i.e., deepcopy frozen trees because they get changed and added to a new tree
-    copied_frozen_subtrees_replacement_label: Dict[
-        Tuple[ProcessTree, int], str
-    ] = OrderedDict()
+    copied_frozen_subtrees_replacement_label: Dict[Tuple[ProcessTree, int], str] = (
+        OrderedDict()
+    )
     copied_frozen_subtrees: List[ProcessTree] = []
     mapping_copied_tree_to_original_tree: Dict[
         Tuple[ProcessTree, int], Tuple[ProcessTree, int]
@@ -82,9 +82,9 @@ def project_trace(
         tree_copy = copy.deepcopy(k[0])
         mapping_copied_tree_to_original_tree[pt_dict_key(tree_copy)] = k
         copied_frozen_subtrees.append(tree_copy)
-        copied_frozen_subtrees_replacement_label[
-            pt_dict_key(tree_copy)
-        ] = frozen_subtrees_replacement_labels[k]
+        copied_frozen_subtrees_replacement_label[pt_dict_key(tree_copy)] = (
+            frozen_subtrees_replacement_labels[k]
+        )
     copied_frozen_subtrees: List[ProcessTree] = []
     for k in copied_frozen_subtrees_replacement_label:
         copied_frozen_subtrees.append(k[0])

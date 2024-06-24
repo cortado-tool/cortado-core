@@ -98,11 +98,10 @@ def __get_service_times_per_activity(
             activity = event[DEFAULT_NAME_KEY]
             activity_instance = event[ACTIVITY_INSTANCE_KEY]
 
-            service_times_per_activity[activity][
-                activity_instance
-            ] = service_times_per_activity[activity].get(activity_instance, []) + [
-                service_time
-            ]
+            service_times_per_activity[activity][activity_instance] = (
+                service_times_per_activity[activity].get(activity_instance, [])
+                + [service_time]
+            )
 
     return service_times_per_activity
 
