@@ -29,6 +29,7 @@ jobs:
     - name: Run pytest and calculate test coverage
       run: pytest --cov=cortado_core cortado_core/tests
 
-    - name: Get total code coverage
-      id: coverage
-      run: echo "{total}={$(coverage report --format=total)}" >> $GITHUB_OUTPUT
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
