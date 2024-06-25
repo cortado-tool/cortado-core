@@ -82,6 +82,6 @@ By incorporating black into your workflow, you contribute to maintaining a clean
 
 ## Contact
 
-If you are interested in Cortado, get in touch if you have any questions or custom request via Mail - [daniel.schuster@fit.fraunhofer.de](mailto:daniel.schuster@fit.fraunhofer.de)
+If you are interested in Cortado, get in touch if you have any questions or custom request via Mail - [daniel.schuster@rwth-aachen.de](mailto:daniel.schuster@rwth-aachen.de)
 
 
