@@ -8,6 +8,6 @@ __pycache__
 outputs/
 pm4py/
 .pytest_cache
-cortado_core/experiments/granularity/figures/
-cortado_core/experiments/granularity/results/
 *.csv
+cortado_core.egg-info
+.coverage

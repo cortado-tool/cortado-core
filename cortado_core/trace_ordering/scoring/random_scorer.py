@@ -9,6 +9,11 @@ from cortado_core.utils.split_graph import Group
 
 
 class RandomScorer(Scorer):
-    def score(self, log: EventLog, previously_added_variants: List[Group], process_tree: ProcessTree,
-              variant_candidate: Group) -> float:
+    def score(
+        self,
+        log: EventLog,
+        previously_added_variants: List[Group],
+        process_tree: ProcessTree,
+        variant_candidate: Group,
+    ) -> float:
         return random.random()

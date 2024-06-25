@@ -1,0 +1,6 @@
+[run]
+omit =
+	cortado_core/tests/*
+	cortado_core/experiments/*
+[report]
+skip_empty = True

@@ -1,3 +1,4 @@
+import copy
 import unittest
 from cortado_core.process_tree_utils.reduction import *
 from cortado_core.utils.start_and_end_activities import *
@@ -5,33 +6,46 @@ from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
 
 
-
 class InsertArtficialActivitiesTest(unittest.TestCase):
     def test_Insert_Artificial_Start_End(self):
-
         t1 = pt_parse("+( ->('A','B','A', X('D', 'C') ) )")
-        t1_expected = pt_parse("->('" + ARTIFICIAL_START_ACTIVITY_NAME + "', + (->('A','B','A', X('D', 'C') ) ),'" + ARTIFICIAL_END_ACTIVITY_NAME + "')")
+        t1_expected = pt_parse(
+            "->('"
+            + ARTIFICIAL_START_ACTIVITY_NAME
+            + "', + (->('A','B','A', X('D', 'C') ) ),'"
+            + ARTIFICIAL_END_ACTIVITY_NAME
+            + "')"
+        )
 
         self.assertEqual(add_artificial_start_and_end_to_pt(t1), t1_expected)
-                
+
     def test_Insert_and_Remove_Artificial_Start_End(self):
         t1 = pt_parse("+ (->('A','B','A', X('D', 'C')))")
         t1_expected = pt_parse("->('A','B','A', X('D', 'C'))")
         t1_arti = add_artificial_start_and_end_to_pt(t1)
 
-        self.assertEqual(t1_expected, remove_artificial_start_and_end_activity_leaves_from_pt(t1_arti))
-
-        t2: ProcessTree = pt_parse(
-        "+ (->('A','" + ARTIFICIAL_END_ACTIVITY_NAME + "','A', '" + ARTIFICIAL_START_ACTIVITY_NAME + "'),'C'))"
+        self.assertEqual(
+            t1_expected,
+            remove_artificial_start_and_end_activity_leaves_from_pt(t1_arti),
         )
 
-        t2_arti =  add_artificial_start_and_end_to_pt(t2)
+        t2: ProcessTree = pt_parse(
+            "+ (->('A','"
+            + ARTIFICIAL_END_ACTIVITY_NAME
+            + "','A', '"
+            + ARTIFICIAL_START_ACTIVITY_NAME
+            + "'),'C'))"
+        )
+
+        t2_arti = add_artificial_start_and_end_to_pt(t2)
         t2_expected = pt_parse("+(->('A','A'),'C')")
 
-        self.assertEqual(remove_artificial_start_and_end_activity_leaves_from_pt(t2_arti), t2_expected)
+        self.assertEqual(
+            remove_artificial_start_and_end_activity_leaves_from_pt(t2_arti),
+            t2_expected,
+        )
 
     def test_Insert_Artificial_Start_End_to_Log(self):
- 
         L = EventLog()
 
         e1 = Event()
@@ -76,7 +90,6 @@ class InsertArtficialActivitiesTest(unittest.TestCase):
         t1.append(e8)
         L.append(t1)
 
-
         t2 = Trace()
         t2.append(e1)
         t2.append(e2)
@@ -89,14 +102,12 @@ class InsertArtficialActivitiesTest(unittest.TestCase):
         t2.append(e8)
         L.append(t2)
 
-       
+        New_Log = add_artificial_start_and_end_activity_to_Log(L, inplace=False)
 
-        New_Log  = add_artificial_start_and_end_activity_to_Log(L, inplace = False)
-
-        self.assertEqual(L,L)
+        self.assertEqual(L, L)
         self.assertNotEqual(L, New_Log)
 
-        add_artificial_start_and_end_activity_to_Log(L, inplace = True)
+        add_artificial_start_and_end_activity_to_Log(L, inplace=True)
         self.assertEqual(L, New_Log)
 
         t_compare = Trace()
@@ -116,8 +127,22 @@ class InsertArtficialActivitiesTest(unittest.TestCase):
 
         self.assertEqual(t_compare, add_artificial_start_and_end_activity_to_trace(t1))
 
+    def test_abc(self):
+        from pm4py.algo.simulation.playout.petri_net import algorithm as simulator
+        from pm4py.objects.conversion.process_tree import converter as pt_converter
 
-
-
-        
-
+        model = pt_parse(
+            "->( 'Permit SUBMITTED by EMPLOYEE', X( tau, 'Permit APPROVED by ADMINISTRATION' ), X( tau, 'Permit APPROVED by BUDGET OWNER' ), X( tau, 'Permit FINAL_APPROVED by SUPERVISOR' ), X( tau, 'Request For Payment SUBMITTED by EMPLOYEE' ), X( tau, 'Request For Payment APPROVED by ADMINISTRATION' ), X( tau, 'Request For Payment APPROVED by BUDGET OWNER' ), X( tau, 'Request For Payment FINAL_APPROVED by SUPERVISOR' ), 'Request Payment', 'Payment Handled' )"
+        )
+        net, im, fm = pt_converter.apply(model)
+        net, im, fm = copy.deepcopy((net, im, fm))
+        model_language = simulator.apply(
+            net,
+            im,
+            fm,
+            variant=simulator.Variants.EXTENSIVE,
+            parameters={
+                simulator.Variants.EXTENSIVE.value.Parameters.MAX_TRACE_LENGTH: 1000
+            },
+        )
+        print(len(model_language))

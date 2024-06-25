@@ -1,7 +1,9 @@
 import unittest
 
 from cortado_core.clustering.label_vector_clusterer import LabelVectorClusterer
-from cortado_core.subprocess_discovery.concurrency_trees.parse_concurrency_tree import parse_concurrency_tree
+from cortado_core.subprocess_discovery.concurrency_trees.parse_concurrency_tree import (
+    parse_concurrency_tree,
+)
 
 
 class TestLabelVectorClusterer(unittest.TestCase):

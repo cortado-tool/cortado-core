@@ -13,15 +13,21 @@ class AgglomerativeEditDistanceClusterer(Clusterer):
     def __init__(self, max_distance):
         self.max_distance = max_distance
 
-    def calculate_clusters(self, variants: List[ConcurrencyTree]) -> List[List[ConcurrencyTree]]:
+    def calculate_clusters(
+        self, variants: List[ConcurrencyTree]
+    ) -> List[List[ConcurrencyTree]]:
         if len(variants) == 0:
             return []
         elif len(variants) == 1:
             return [[variants[0]]]
 
         distance_matrix = self.calculate_distance_matrix(variants)
-        result = AgglomerativeClustering(affinity='precomputed', distance_threshold=self.max_distance,
-                                         linkage='complete', n_clusters=None).fit(distance_matrix)
+        result = AgglomerativeClustering(
+            affinity="precomputed",
+            distance_threshold=self.max_distance,
+            linkage="complete",
+            n_clusters=None,
+        ).fit(distance_matrix)
 
         cluster_dict = defaultdict(list)
         for i in range(len(variants)):
@@ -30,7 +36,9 @@ class AgglomerativeEditDistanceClusterer(Clusterer):
         return [cluster_dict[i] for i in cluster_dict.keys()]
 
     @staticmethod
-    def calculate_distance_matrix(variants: List[ConcurrencyTree], distance_func=calculate_edit_distance):
+    def calculate_distance_matrix(
+        variants: List[ConcurrencyTree], distance_func=calculate_edit_distance
+    ):
         n = len(variants)
         result = np.zeros((n, n), dtype=int)
         for i in range(n):

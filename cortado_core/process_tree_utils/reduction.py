@@ -4,11 +4,16 @@ from pm4py.objects.process_tree.obj import ProcessTree, Operator
 import pm4py.visualization.process_tree.visualizer as tree_vis
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
 
-from cortado_core.process_tree_utils.miscellaneous import replace_tree_in_children, get_index_of_pt_in_children_list, \
-    is_tau_leaf
+from cortado_core.process_tree_utils.miscellaneous import (
+    replace_tree_in_children,
+    get_index_of_pt_in_children_list,
+    is_tau_leaf,
+)
 
 
-def apply_reduction_rules(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:
+def apply_reduction_rules(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> None:
     """
     Applies language preserving reduction rules to the given process tree
     :param excluded_subtrees:
@@ -16,7 +21,9 @@ def apply_reduction_rules(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
     :return:
     """
     if pt.children and len(pt.children) > 0:
-        _associativity_reduction_choice_parallelism(pt, excluded_subtrees=excluded_subtrees)
+        _associativity_reduction_choice_parallelism(
+            pt, excluded_subtrees=excluded_subtrees
+        )
         _reduce_sequences(pt, excluded_subtrees=excluded_subtrees)
         _tau_reduction_sequence_parallelism(pt, excluded_subtrees=excluded_subtrees)
         _tau_reduction_choice(pt, excluded_subtrees=excluded_subtrees)
@@ -27,16 +34,19 @@ def apply_reduction_rules(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
             apply_reduction_rules(subtree, excluded_subtrees)
 
 
-def _tree_in_list_of_trees_based_on_id(tree: ProcessTree, trees: List[ProcessTree]) -> bool:
+def _tree_in_list_of_trees_based_on_id(
+    tree: ProcessTree, trees: List[ProcessTree]
+) -> bool:
     tree_ids = [id(pt) for pt in trees]
     return id(tree) in tree_ids
 
 
-def reduce_loops_with_more_than_two_children(pt, excluded_subtrees = []):
+def reduce_loops_with_more_than_two_children(pt, excluded_subtrees=[]):
     __reduce_to_at_most_two_loop_children(pt, excluded_subtrees)
     for subtree in pt.children:
         if not _tree_in_list_of_trees_based_on_id(subtree, excluded_subtrees):
             reduce_loops_with_more_than_two_children(subtree, excluded_subtrees)
+
 
 def __reduce_to_at_most_two_loop_children(pt, excluded_subtrees):
     if _tree_in_list_of_trees_based_on_id(pt, excluded_subtrees):
@@ -52,10 +62,14 @@ def __reduce_to_at_most_two_loop_children(pt, excluded_subtrees):
     pt.children = [pt.children[0], new_xor]
 
 
-def _associativity_reduction_choice_parallelism(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:
+def _associativity_reduction_choice_parallelism(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> None:
     def child_has_matching_operator(operator, pt):
         for child in pt.children:
-            if child.operator == operator and not _tree_in_list_of_trees_based_on_id(child, excluded_subtrees):
+            if child.operator == operator and not _tree_in_list_of_trees_based_on_id(
+                child, excluded_subtrees
+            ):
                 return True
         return False
 
@@ -67,8 +81,10 @@ def _associativity_reduction_choice_parallelism(pt: ProcessTree, excluded_subtre
         subtree_children_to_lift_up: List[ProcessTree] = []
         children_to_remove_from_pt: List[ProcessTree] = []
         for subtree in pt.children:
-            if subtree.operator == root_operator and not _tree_in_list_of_trees_based_on_id(subtree,
-                                                                                            excluded_subtrees):
+            if (
+                subtree.operator == root_operator
+                and not _tree_in_list_of_trees_based_on_id(subtree, excluded_subtrees)
+            ):
                 children_to_remove_from_pt.append(subtree)
                 subtree_children_to_lift_up.extend(subtree.children)
         for subtree in subtree_children_to_lift_up:
@@ -77,7 +93,9 @@ def _associativity_reduction_choice_parallelism(pt: ProcessTree, excluded_subtre
         pt.children.extend(subtree_children_to_lift_up)
 
 
-def _reduce_sequences(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:
+def _reduce_sequences(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> None:
     def check_for_subtree_with_sequence_op(tree: ProcessTree):
         for s in tree.children:
             if s.operator == Operator.SEQUENCE and s not in excluded_subtrees:
@@ -87,22 +105,33 @@ def _reduce_sequences(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
     if pt.operator == Operator.SEQUENCE:
         while check_for_subtree_with_sequence_op(pt):
             for idx, c in enumerate(pt.children):
-                if c.operator == Operator.SEQUENCE and not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees):
+                if (
+                    c.operator == Operator.SEQUENCE
+                    and not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees)
+                ):
                     subtrees_to_lift_up = c.children
                     for subtree in subtrees_to_lift_up:
                         subtree.parent = pt
-                    new_children = pt.children[:idx] + subtrees_to_lift_up + pt.children[idx + 1:]
+                    new_children = (
+                        pt.children[:idx] + subtrees_to_lift_up + pt.children[idx + 1 :]
+                    )
                     pt.children = new_children
                     del c
                     break
 
 
-def _tau_reduction_sequence_parallelism(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:
+def _tau_reduction_sequence_parallelism(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> None:
     if pt.operator == Operator.SEQUENCE or pt.operator == Operator.PARALLEL:
         tau_leaves_to_remove: List[ProcessTree] = []
         for c in pt.children:
-            if (not c.children or len(c.children) == 0) and not c.operator and not c.label and \
-                    not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees):
+            if (
+                (not c.children or len(c.children) == 0)
+                and not c.operator
+                and not c.label
+                and not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees)
+            ):
                 tau_leaves_to_remove.append(c)
 
         if len(tau_leaves_to_remove) == len(pt.children):
@@ -115,11 +144,17 @@ def _tau_reduction_sequence_parallelism(pt: ProcessTree, excluded_subtrees: List
             del leaf_node
 
 
-def _tau_reduction_choice(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> None:
+def _tau_reduction_choice(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> None:
     if pt.operator == Operator.XOR:
         tau_leaves: List[ProcessTree] = []
         for c in pt.children:
-            if not c.children and c.label is None and not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees):
+            if (
+                not c.children
+                and c.label is None
+                and not _tree_in_list_of_trees_based_on_id(c, excluded_subtrees)
+            ):
                 tau_leaves.append(c)
         while len(tau_leaves) > 1:
             tau_leave_to_remove = tau_leaves.pop()
@@ -127,7 +162,9 @@ def _tau_reduction_choice(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
             del tau_leave_to_remove
 
 
-def general_tau_reduction(pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []) -> ProcessTree:
+def general_tau_reduction(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> ProcessTree:
     # replace operator nodes with tau nodes if they have just tau leaf nodes
     if pt.operator and not _tree_in_list_of_trees_based_on_id(pt, excluded_subtrees):
         all_children_tau = True
@@ -148,8 +185,9 @@ def general_tau_reduction(pt: ProcessTree, excluded_subtrees: List[ProcessTree] 
     return pt
 
 
-def remove_operator_node_with_one_or_no_child(pt: ProcessTree,
-                                              excluded_subtrees: List[ProcessTree] = []) -> Optional[ProcessTree]:
+def remove_operator_node_with_one_or_no_child(
+    pt: ProcessTree, excluded_subtrees: List[ProcessTree] = []
+) -> Optional[ProcessTree]:
     if _tree_in_list_of_trees_based_on_id(pt, excluded_subtrees):
         return pt
 
@@ -161,9 +199,13 @@ def remove_operator_node_with_one_or_no_child(pt: ProcessTree,
         if _tree_in_list_of_trees_based_on_id(pt, excluded_subtrees):
             new_children.append(child)
         else:
-            new_child = remove_operator_node_with_one_or_no_child(child, excluded_subtrees)
+            new_child = remove_operator_node_with_one_or_no_child(
+                child, excluded_subtrees
+            )
             if new_child is not None:
-                new_children.append(remove_operator_node_with_one_or_no_child(child, excluded_subtrees))
+                new_children.append(
+                    remove_operator_node_with_one_or_no_child(child, excluded_subtrees)
+                )
 
     pt.children = new_children
 
@@ -179,15 +221,20 @@ def remove_operator_node_with_one_or_no_child(pt: ProcessTree,
 
 def __reduce_tau_loops(tree: ProcessTree, excluded_subtrees: List[ProcessTree]):
     """
-    Reduces process trees of the shape xor(tau, loop(T, tau)) to loop(tau, T)
+    Reduces process trees of the shapes
+    - xor(tau, loop(T, tau))
+    - xor(tau, loop(tau, T))
+    - loop(xor(T, tau), tau)
+    - loop(xor(tau, T), tau)
+    - loop(tau, xor(T, tau))
+    - loop(tau, xor(tau, T))
+     to
+    => loop(tau, T)
     :param tree:
     :param excluded_subtrees:
     :return:
     """
     if _tree_in_list_of_trees_based_on_id(tree, excluded_subtrees):
-        return
-
-    if tree.operator != Operator.XOR:
         return
 
     if len(tree.children) != 2:
@@ -196,37 +243,72 @@ def __reduce_tau_loops(tree: ProcessTree, excluded_subtrees: List[ProcessTree]):
     child1 = tree.children[0]
     child2 = tree.children[1]
 
-    if child1.operator == Operator.LOOP:
-        loop_child = child1
-        potential_tau_child = child2
-    elif child2.operator == Operator.LOOP:
-        loop_child = child2
-        potential_tau_child = child1
-    else:
-        return
+    match tree.operator:
+        case Operator.XOR:
+            # - xor(tau, loop(T, tau))
+            # - xor(tau, loop(tau, T))
+            if child1.operator == Operator.LOOP:
+                loop_child = child1
+                potential_tau_child = child2
+            elif child2.operator == Operator.LOOP:
+                loop_child = child2
+                potential_tau_child = child1
+            else:
+                return
 
-    if potential_tau_child.operator is not None or potential_tau_child.label is not None:
-        return
+            if not is_tau_leaf(potential_tau_child):
+                return
 
-    if _tree_in_list_of_trees_based_on_id(loop_child, excluded_subtrees):
-        return
+            if _tree_in_list_of_trees_based_on_id(loop_child, excluded_subtrees):
+                return
 
-    if len(loop_child.children) != 2:
-        return
+            if len(loop_child.children) != 2:
+                return
 
-    potential_tau_redo_child = loop_child.children[1]
-    if potential_tau_redo_child.label is not None or potential_tau_redo_child.operator is not None:
-        return
+            if is_tau_leaf(loop_child.children[0]):
+                new_redo_child = loop_child.children[1]
+            elif is_tau_leaf(loop_child.children[1]):
+                new_redo_child = loop_child.children[0]
+            else:
+                return
 
-    tree.operator = Operator.LOOP
-    tree.children = [potential_tau_redo_child, loop_child.children[0]]
-    for child in tree.children:
-        child.parent = tree
+            tree.operator = Operator.LOOP
+            tree.children = [potential_tau_child, new_redo_child]
+            for child in tree.children:
+                child.parent = tree
+
+        case Operator.LOOP:
+            if child1.operator == Operator.XOR and is_tau_leaf(child2):
+                # - loop(xor(T, tau), tau)
+                # - loop(xor(tau, T), tau)
+                xor_child = child1
+                potential_tau_child = child2
+            elif child2.operator == Operator.XOR and is_tau_leaf(child1):
+                # - loop(tau, xor(T, tau))
+                # - loop(tau, xor(tau, T))
+                xor_child = child2
+                potential_tau_child = child1
+            else:
+                return
+
+            if len(xor_child.children) != 2:
+                return
+
+            if is_tau_leaf(xor_child.children[0]):
+                new_redo_child = xor_child.children[1]
+            elif is_tau_leaf(xor_child.children[1]):
+                new_redo_child = xor_child.children[0]
+            else:
+                return
+
+            tree.children = [potential_tau_child, new_redo_child]
+            new_redo_child.parent = tree
 
 
 def reduction_test():
     t = pt_parse(
-        "->('Create Fine', X( 'Payment', tau ), X( 'Send Fine', tau ), X( 'Insert Fine Notification', tau ), +( ->( X( tau ), X( tau ) ), X( +( *( tau, 'Payment' ), 'Add penalty' ), tau ) ), X( 'Send for Credit Collection', tau ) )")
+        "->('Create Fine', X( 'Payment', tau ), X( 'Send Fine', tau ), X( 'Insert Fine Notification', tau ), +( ->( X( tau ), X( tau ) ), X( +( *( tau, 'Payment' ), 'Add penalty' ), tau ) ), X( 'Send for Credit Collection', tau ) )"
+    )
     tree_vis.view(tree_vis.apply(t, parameters={"format": "svg"}))
 
     t = remove_operator_node_with_one_or_no_child(t)
@@ -244,7 +326,10 @@ def reduction_test():
     print(t2)
 
     # Expected +('A','C')
-    t3 = ProcessTree(operator="->", children=[pt_parse("->( +( 'A', 'C' ))"), ProcessTree(operator="->")])
+    t3 = ProcessTree(
+        operator="->",
+        children=[pt_parse("->( +( 'A', 'C' ))"), ProcessTree(operator="->")],
+    )
     t3 = remove_operator_node_with_one_or_no_child(t3)
 
     tree_vis.view(tree_vis.apply(t2, parameters={"format": "svg"}))
@@ -270,7 +355,9 @@ if __name__ == "__main__":
     # print(t_tau)
     # tree_vis.view(tree_vis.apply(t_tau, parameters={"format": "svg"}))
 
-    pt_test_1 = pt_parse("+('A', 'C', tau, ->('H','G'), ->('X'), X(+('G'), 'H', +('A', 'C', tau, tau, tau, tau)))")
+    pt_test_1 = pt_parse(
+        "+('A', 'C', tau, ->('H','G'), ->('X'), X(+('G'), 'H', +('A', 'C', tau, tau, tau, tau)))"
+    )
     pt_true_1 = pt_parse("+('A', 'C', ->('H','G'), 'X', X('G', 'H', +('A', 'C')))")
 
     apply_reduction_rules(pt_test_1)

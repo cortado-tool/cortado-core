@@ -9,8 +9,13 @@ from cortado_core.utils.split_graph import Group
 
 class StrategyComponent(ABC):
     @abstractmethod
-    def apply(self, log: EventLog, previously_added_variants: List[Group], process_tree: ProcessTree,
-              variant_candidates: List[Group]) -> List[Group]:
+    def apply(
+        self,
+        log: EventLog,
+        previously_added_variants: List[Group],
+        process_tree: ProcessTree,
+        variant_candidates: List[Group],
+    ) -> List[Group]:
         """
         :param log: Event Log
         :param previously_added_variants: Added traces of previous iterations of the incremental discovery approach

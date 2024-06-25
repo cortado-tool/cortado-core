@@ -19,5 +19,11 @@ def visualize_petri_net(net: PetriNet) -> None:
             im: Marking = Marking({p: 1})
         if len(p.out_arcs) == 0:
             fm: Marking = Marking({p: 1})
-    petri_vis.view(petri_vis.apply(net_copied, im, fm, parameters={"format": "svg", "debug": True}))
-    petri_vis.view(petri_vis.apply(net_copied, im, fm, parameters={"format": "svg", "debug": False}))
+    petri_vis.view(
+        petri_vis.apply(net_copied, im, fm, parameters={"format": "svg", "debug": True})
+    )
+    petri_vis.view(
+        petri_vis.apply(
+            net_copied, im, fm, parameters={"format": "svg", "debug": False}
+        )
+    )

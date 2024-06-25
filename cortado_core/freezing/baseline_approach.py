@@ -6,18 +6,24 @@ from pm4py.objects.log.obj import EventLog, Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
 
 from cortado_core.lca_approach import add_trace_to_pt_language
-from cortado_core.process_tree_utils.miscellaneous import get_root, subtree_is_part_of_tree_based_on_obj_id, \
-    subtree_contained_in_tree
+from cortado_core.process_tree_utils.miscellaneous import (
+    get_root,
+    subtree_is_part_of_tree_based_on_obj_id,
+    subtree_contained_in_tree,
+)
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
 from pm4py.objects.process_tree.obj import Operator
 
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 
 
-def add_trace_to_pt_language_with_freezing_baseline_approach(pt: ProcessTree, frozen_subtrees: List[ProcessTree],
-                                                             log: EventLog,
-                                                             trace: Trace,
-                                                             try_pulling_lca_down=True) -> ProcessTree:
+def add_trace_to_pt_language_with_freezing_baseline_approach(
+    pt: ProcessTree,
+    frozen_subtrees: List[ProcessTree],
+    log: EventLog,
+    trace: Trace,
+    try_pulling_lca_down=True,
+) -> ProcessTree:
     """
     Checks if a given trace can be replayed on the given process tree. If not, the tree will be altered to accept the
     given trace
@@ -37,9 +43,13 @@ def add_trace_to_pt_language_with_freezing_baseline_approach(pt: ProcessTree, fr
 
     if not trace_fits_process_tree(trace, pt):
         # deepcopy frozen subtrees because otherwise they might get changed due to process tree changes
-        frozen_subtrees = [copy.deepcopy(frozen_subtree) for frozen_subtree in frozen_subtrees]
+        frozen_subtrees = [
+            copy.deepcopy(frozen_subtree) for frozen_subtree in frozen_subtrees
+        ]
         # execute 'standard' incremental approach
-        pt = add_trace_to_pt_language(pt, log, trace, try_pulling_lca_down=try_pulling_lca_down)
+        pt = add_trace_to_pt_language(
+            pt, log, trace, try_pulling_lca_down=try_pulling_lca_down
+        )
 
         # add frozen subtrees to pt if pt does not contain frozen subtrees
         missing_frozen_subtrees: List[ProcessTree] = []
@@ -52,8 +62,13 @@ def add_trace_to_pt_language_with_freezing_baseline_approach(pt: ProcessTree, fr
 
         if len(missing_frozen_subtrees) > 0:
             # print("reinsert frozen subtrees")
-            optional_frozen_subtrees = [__create_optional_tree_from_given_subtree(t) for t in missing_frozen_subtrees]
-            res: ProcessTree = ProcessTree(operator=Operator.PARALLEL, children=[pt] + optional_frozen_subtrees)
+            optional_frozen_subtrees = [
+                __create_optional_tree_from_given_subtree(t)
+                for t in missing_frozen_subtrees
+            ]
+            res: ProcessTree = ProcessTree(
+                operator=Operator.PARALLEL, children=[pt] + optional_frozen_subtrees
+            )
             for c in res.children:
                 c.parent = res
             return res, frozen_subtrees
@@ -113,6 +128,8 @@ if __name__ == "__main__":
     frozen_trees = []
     frozen_trees.append(pt_1.children[0])
     print(frozen_trees)
-    res, frozen_subtrees = add_trace_to_pt_language_with_freezing_baseline_approach(pt_1, frozen_trees, log, t_next)
+    res, frozen_subtrees = add_trace_to_pt_language_with_freezing_baseline_approach(
+        pt_1, frozen_trees, log, t_next
+    )
     print(res)
     print(frozen_subtrees)

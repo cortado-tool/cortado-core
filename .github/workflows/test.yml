@@ -1,0 +1,34 @@
+name: Test
+
+on: [push, pull_request]
+
+concurrency:
+  group: "${{ github.ref }}#${{ github.workflow}}"
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with:
+        lfs: true
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Run pytest and calculate test coverage
+      run: pytest --cov=cortado_core cortado_core/tests
+
+    - name: Get total code coverage
+      id: coverage
+      run: echo "{total}={$(coverage report --format=total)}" >> $GITHUB_OUTPUT

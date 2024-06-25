@@ -15,25 +15,40 @@ class TraceScorerAdapter(Scorer):
         self.trace_scorer = trace_scorer
         self.statistic = statistic
 
-    def score(self, log: EventLog, previously_added_variants: List[Group], process_tree: ProcessTree,
-              variant_candidate: Group) -> float:
+    def score(
+        self,
+        log: EventLog,
+        previously_added_variants: List[Group],
+        process_tree: ProcessTree,
+        variant_candidate: Group,
+    ) -> float:
         traces_candidate = self.__generate_traces_from_variant(variant_candidate)
-        previously_added_traces = self.__generate_traces_for_previously_added_variants(previously_added_variants)
+        previously_added_traces = self.__generate_traces_for_previously_added_variants(
+            previously_added_variants
+        )
 
         scores: List[float] = []
 
         for trace_candidate in traces_candidate:
-            scores.append(self.trace_scorer.score(log, previously_added_traces, process_tree, trace_candidate))
+            scores.append(
+                self.trace_scorer.score(
+                    log, previously_added_traces, process_tree, trace_candidate
+                )
+            )
 
         return self.statistic(scores)
 
-    def __generate_traces_for_previously_added_variants(self, previously_added_variants: List[Group]):
+    def __generate_traces_for_previously_added_variants(
+        self, previously_added_variants: List[Group]
+    ):
         # when performance becomes a problem because the serializations for the previously_added_variants are
         # calculated too often, implement a cache
         traces: List[Trace] = []
 
         for previously_added_variant in previously_added_variants:
-            traces = traces + self.__generate_traces_from_variant(previously_added_variant)
+            traces = traces + self.__generate_traces_from_variant(
+                previously_added_variant
+            )
 
         return traces
 
@@ -51,7 +66,7 @@ class TraceScorerAdapter(Scorer):
 
         for activity in trace_list:
             event = Event()
-            event['concept:name'] = activity
+            event["concept:name"] = activity
 
             trace.append(event)
 

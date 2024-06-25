@@ -7,6 +7,11 @@ from pm4py.objects.process_tree.obj import ProcessTree
 
 class TraceScorer(ABC):
     @abstractmethod
-    def score(self, log: EventLog, previously_added_traces: List[Trace], process_tree: ProcessTree,
-              trace_candidate: Trace) -> float:
+    def score(
+        self,
+        log: EventLog,
+        previously_added_traces: List[Trace],
+        process_tree: ProcessTree,
+        trace_candidate: Trace,
+    ) -> float:
         pass

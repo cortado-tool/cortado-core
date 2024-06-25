@@ -4,6 +4,7 @@ from typing import Mapping, Set
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
 
+
 class FrequencyCountingStrategy(Enum):
     """
     Defines the different Frequency Counting Strategies supported by the model
@@ -13,13 +14,16 @@ class FrequencyCountingStrategy(Enum):
     TraceOccurence = 2
     VariantTransaction = 3
     VariantOccurence = 4
-    
+
+
 @dataclass
 class FrequentActivitySets:
     fA: Set[str]
     efR: Mapping[str, str]
     dfR: Mapping[str, str]
     ccR: Mapping[str, str]
+
+
 @dataclass
 class PruningSets_2Patterns:
     ftNestPrune: Set[str]
@@ -32,8 +36,10 @@ class PruningSets_2Patterns:
     efFollowsPrune: Mapping[str, Set[str]]
     ftLabelPrune: Mapping[str, Set[str]]
     operatorPrune: Mapping[str, Set[str]]
-    operatorOperatorPrune : Mapping[cTreeOperator, Set[cTreeOperator]]
-    operatorActivityPrune : Mapping[cTreeOperator, Set[str]]
+    operatorOperatorPrune: Mapping[cTreeOperator, Set[cTreeOperator]]
+    operatorActivityPrune: Mapping[cTreeOperator, Set[str]]
+
+
 @dataclass
 class PruningSets:
     dfFollowsPrune: Mapping[str, Set[str]]

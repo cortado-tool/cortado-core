@@ -11,17 +11,17 @@ from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_tree imp
 from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_tree_pattern import (
     CMTreePattern,
 )
-from cortado_core.subprocess_discovery.subtree_mining.obj import FrequencyCountingStrategy
+from cortado_core.subprocess_discovery.subtree_mining.obj import (
+    FrequencyCountingStrategy,
+)
 from cortado_core.subprocess_discovery.subtree_mining.treebank import TreeBankEntry
 from cortado_core.subprocess_discovery.subtree_mining.utilities import (
     _update_subToGain,
     get_child_labels,
 )
 
-def check_frequency_blanket(
-    tp: CMTreePattern, min_sup, treeBank, strategy
-):
 
+def check_frequency_blanket(tp: CMTreePattern, min_sup, treeBank, strategy):
     # Creat an Iterator over the Occurence Lists
     occLists = iter(tp.tree.occList)
 
@@ -46,7 +46,6 @@ def check_seq_frequent_blanket_match_left_right(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     left_sup = Counter()
     right_sup = Counter()
 
@@ -74,7 +73,9 @@ def check_seq_frequent_blanket_match_left_right(
             return True
 
         else:
-            supToGain = _update_subToGain(treeBank, strategy, supToGain, oId, tp.rmo[oId])
+            supToGain = _update_subToGain(
+                treeBank, strategy, supToGain, oId, tp.rmo[oId]
+            )
 
             # Break Early if no counter can become frequent
             if _check_if_no_more_supToGain(min_sup, supToGain, left_sup, right_sup):
@@ -84,10 +85,8 @@ def check_seq_frequent_blanket_match_left_right(
 
 
 def _check_if_any_support_above_threshold(min_sup: int, *supCounters: Counter):
-
     # Check if any of the counters has a frequent element
     for supCounter in supCounters:
-
         if supCounter and supCounter.most_common(1)[0][1] > min_sup:
             return True
 
@@ -95,15 +94,13 @@ def _check_if_any_support_above_threshold(min_sup: int, *supCounters: Counter):
 
 
 def _check_if_no_more_supToGain(min_sup: int, supToGain: int, *supCounters: Counter):
-
     tmp = []
 
     for supCounter in supCounters:
-
         if supCounter:
             tmp.append(min_sup > (supCounter.most_common(1)[0][1] + supToGain))
-        
-        else: 
+
+        else:
             tmp.append(min_sup > supToGain)
 
     return all(tmp)
@@ -113,13 +110,11 @@ def _compute_support_update(
     strategy: FrequencyCountingStrategy,
     tid: int,
     treeBank: Mapping[int, TreeBankEntry],
-    *OccCounters
+    *OccCounters,
 ):
-
     res = []
 
     for occCounter in OccCounters:
-
         if strategy == FrequencyCountingStrategy.TraceTransaction:
             res.append({k: treeBank[tid].nTraces for k in occCounter.keys()})
 
@@ -144,12 +139,10 @@ def _compute_left_right_seq_occurences(
     lChildOccList: Mapping[int, ConcurrencyTree],
     rChildOccList: Mapping[int, ConcurrencyTree],
 ):
-
     lOccs = {}
     rOccs = {}
 
     for idx, occurence in enumerate(occurences):
-
         lIdx = occurence.children.index(lChildOccList[idx])
 
         if lIdx > 0 and occurence.children[lIdx - 1].label:
@@ -163,7 +156,6 @@ def _compute_left_right_seq_occurences(
         rIdx = occurence.children.index(rChildOccList[idx])
 
         if rIdx < (len(occurence.children) - 1) and occurence.children[rIdx + 1].label:
-
             rOcc = occurence.children[rIdx + 1].label
 
             if rOcc in rOccs:
@@ -184,13 +176,10 @@ def _compute_bottom_occurences(
     rootIds: List[int],
     occurences: Mapping[int, ConcurrencyTree],
 ):
-
     bOccs = {}
 
     for idx, occurence in enumerate(occurences):
-
         for bOcc in get_child_labels(occurence.children):
-
             if bOcc in bOccs:
                 bOccs[bOcc].add(rootIds[idx])
             else:
@@ -208,7 +197,6 @@ def check_frequent_blanket_match_bottom(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     bottom_sup = Counter()
     supToGain = tp.support
 
@@ -228,13 +216,16 @@ def check_frequent_blanket_match_bottom(
             return True
 
         else:
-            supToGain = _update_subToGain(treeBank, strategy, supToGain, oId, tp.rmo[oId])
+            supToGain = _update_subToGain(
+                treeBank, strategy, supToGain, oId, tp.rmo[oId]
+            )
 
             # Break Early if no counter can become frequent
             if _check_if_no_more_supToGain(min_sup, supToGain, bottom_sup):
                 return False  # No Frequent Child to be found
 
     return False  # No Frequent Child found
+
 
 def check_concurrent_frequent_blanket_match_left_right(
     tp: CMTreePattern,
@@ -243,7 +234,6 @@ def check_concurrent_frequent_blanket_match_left_right(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     left_sup = Counter()
     right_sup = Counter()
     between_sup = Counter()
@@ -252,11 +242,10 @@ def check_concurrent_frequent_blanket_match_left_right(
     rChildOccList = tree.children[-1].occList
 
     children_labels = get_child_labels(tree.children[1:-1])
-    
+
     supToGain = tp.support
 
     for oId, occurences in tree.occList.items():
-
         rootIds = [e[0] for e in tp.rmo[oId]]
         lOccs, rOccs, bOccs = _compute_left_right_con_occurences(
             strategy,
@@ -272,15 +261,16 @@ def check_concurrent_frequent_blanket_match_left_right(
         left_sup.update(lOccs)
         right_sup.update(rOccs)
         between_sup.update(bOccs)
-        
+
         if _check_if_any_support_above_threshold(
             min_sup, left_sup, right_sup, between_sup
         ):
             return True
 
         else:
-            
-            supToGain = _update_subToGain(treeBank, strategy, supToGain, oId, tp.rmo[oId])
+            supToGain = _update_subToGain(
+                treeBank, strategy, supToGain, oId, tp.rmo[oId]
+            )
 
             # Break Early if no counter can become frequent
             if _check_if_no_more_supToGain(
@@ -301,19 +291,15 @@ def _compute_left_right_con_occurences(
     rChildOccList: Mapping[int, ConcurrencyTree],
     children_labels: Set[str],
 ):
-
     lOccs = {}
     rOccs = {}
     bOccs = {}
 
     for idx, occurence in enumerate(occurences):
-
         lIdx = occurence.children.index(lChildOccList[idx])
 
         if lIdx > 0:
-
             for lOcc in get_child_labels(occurence.children[:lIdx]):
-
                 if lOcc in lOccs:
                     lOccs[lOcc].add(rootIds[idx])
                 else:
@@ -322,16 +308,13 @@ def _compute_left_right_con_occurences(
         rIdx = occurence.children.index(rChildOccList[idx])
 
         if rIdx < len(occurence.children) - 1:
-
             for rOcc in get_child_labels(occurence.children[rIdx + 1 :]):
-
                 if rOcc in rOccs:
                     rOccs[rOcc].add(rootIds[idx])
                 else:
                     rOccs[rOcc] = set([rootIds[idx]])
 
         if lIdx != rIdx:
-
             betweenSiblings = get_child_labels(occurence.children[lIdx + 1 : rIdx])
 
             for child in children_labels:
@@ -346,7 +329,7 @@ def _compute_left_right_con_occurences(
     lOccs = {k: len(v) for k, v in lOccs.items()}
     rOccs = {k: len(v) for k, v in rOccs.items()}
     bOccs = {k: len(v) for k, v in bOccs.items()}
-    
+
     return _compute_support_update(strategy, oId, treeBank, lOccs, rOccs, bOccs)
 
 
@@ -357,7 +340,6 @@ def check_concurrent_frequent_blanket_match(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     if len(tree.children) > 0:
         return check_concurrent_frequent_blanket_match_left_right(
             tp,
@@ -389,7 +371,6 @@ def check_seq_frequent_blanket_match(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     if len(tree.children) > 0:
         return check_seq_frequent_blanket_match_left_right(
             tp,
@@ -400,7 +381,7 @@ def check_seq_frequent_blanket_match(
         )
     else:
         return False
-        pass 
+        pass
 
         """
         return check_frequent_blanket_match_bottom(
@@ -423,7 +404,6 @@ def compute_blanket_frequent_candidates(
     min_sup: int,
     strategy: FrequencyCountingStrategy,
 ):
-
     # Is Empty
     freqBlanketNotEmpty = False
 
@@ -449,8 +429,7 @@ def compute_blanket_frequent_candidates(
 
     if not freqBlanketNotEmpty:
         for child in tree.children:
-            
-            if child.op: 
+            if child.op:
                 freqBlanketNotEmpty |= compute_blanket_frequent_candidates(
                     tp=tp,
                     tree=child,
@@ -459,8 +438,8 @@ def compute_blanket_frequent_candidates(
                     min_sup=min_sup,
                     strategy=strategy,
                 )
-                
-            if freqBlanketNotEmpty: 
+
+            if freqBlanketNotEmpty:
                 break
 
     return freqBlanketNotEmpty

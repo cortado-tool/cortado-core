@@ -20,32 +20,90 @@ def set_parent(pt: CortadoProcessTree):
 class PerformanceHelpers:
     @staticmethod
     def to_seconds(d: Tuple[datetime, datetime]):
-        return [(d[0] - datetime.fromtimestamp(0)).total_seconds() if d[0] is not None else None,
-                (d[1] - datetime.fromtimestamp(0)).total_seconds() if d[1] is not None else None]
+        return [
+            (
+                (d[0] - datetime.fromtimestamp(0)).total_seconds()
+                if d[0] is not None
+                else None
+            ),
+            (
+                (d[1] - datetime.fromtimestamp(0)).total_seconds()
+                if d[1] is not None
+                else None
+            ),
+        ]
 
     @staticmethod
     def timestamps_to_seconds_multi_interval(multi_interval):
         return {
-            t: [[[[PerformanceHelpers.to_seconds(interval) for interval in intervals] for intervals in
-                  instances] if instances else None
-                 for instances in alignments] if alignments else None
-                for alignments in cases] for t, cases in multi_interval.items()}
+            t: [
+                (
+                    [
+                        (
+                            [
+                                [
+                                    PerformanceHelpers.to_seconds(interval)
+                                    for interval in intervals
+                                ]
+                                for intervals in instances
+                            ]
+                            if instances
+                            else None
+                        )
+                        for instances in alignments
+                    ]
+                    if alignments
+                    else None
+                )
+                for alignments in cases
+            ]
+            for t, cases in multi_interval.items()
+        }
 
     @staticmethod
     def timestamps_to_seconds_single_interval(single_interval):
         return {
-            t: [list(list(PerformanceHelpers.to_seconds(interval) for interval in instances) if instances else None
-                     for instances in alignments) if alignments else None
-                for alignments in cases] for t, cases in single_interval.items()}
+            t: [
+                (
+                    list(
+                        (
+                            list(
+                                PerformanceHelpers.to_seconds(interval)
+                                for interval in instances
+                            )
+                            if instances
+                            else None
+                        )
+                        for instances in alignments
+                    )
+                    if alignments
+                    else None
+                )
+                for alignments in cases
+            ]
+            for t, cases in single_interval.items()
+        }
 
     @staticmethod
     def test_performance(log, tree):
-        (all_service_times, all_idle_times, all_waiting_times, all_cycle_times), mean_fitness \
-            = tree_performance.get_tree_performance_intervals(tree, log)
-        all_service_times = PerformanceHelpers.timestamps_to_seconds_multi_interval(all_service_times)
-        all_idle_times = PerformanceHelpers.timestamps_to_seconds_multi_interval(all_idle_times)
-        all_waiting_times = PerformanceHelpers.timestamps_to_seconds_single_interval(all_waiting_times)
-        all_cycle_times = PerformanceHelpers.timestamps_to_seconds_single_interval(all_cycle_times)
+        (
+            all_service_times,
+            all_idle_times,
+            all_waiting_times,
+            all_cycle_times,
+        ), mean_fitness = tree_performance.get_tree_performance_intervals(tree, log)
+        all_service_times = PerformanceHelpers.timestamps_to_seconds_multi_interval(
+            all_service_times
+        )
+        all_idle_times = PerformanceHelpers.timestamps_to_seconds_multi_interval(
+            all_idle_times
+        )
+        all_waiting_times = PerformanceHelpers.timestamps_to_seconds_single_interval(
+            all_waiting_times
+        )
+        all_cycle_times = PerformanceHelpers.timestamps_to_seconds_single_interval(
+            all_cycle_times
+        )
         return all_service_times, all_idle_times, all_waiting_times, all_cycle_times
 
 

@@ -9,7 +9,7 @@ log_path = "C:/Users/dschuste/Documents/event_logs/road_traffic_fine_management/
 log = xes_importer.apply(log_path)
 
 variants_count = case_statistics.get_variant_statistics(log)
-variants_count = sorted(variants_count, key=lambda x: x['count'], reverse=True)
+variants_count = sorted(variants_count, key=lambda x: x["count"], reverse=True)
 
 print("number of variants: ", variants_count)
 
@@ -27,4 +27,3 @@ for trace in log:
     tree = ensure_trace_replayable_on_process_tree(trace, tree)
     gviz = pt_vis_factory.apply(tree, parameters={"format": "svg"})
     pt_vis_factory.view(gviz)
-

@@ -2,11 +2,11 @@
 from antlr4 import *
 from io import StringIO
 import sys
+
 if sys.version_info[1] > 5:
     from typing import TextIO
 else:
     from typing.io import TextIO
-
 
 
 def serializedATN():
@@ -33,21 +33,21 @@ def serializedATN():
         buf.write("\u00dc\n\32\3\33\3\33\3\34\3\34\3\35\3\35\6\35\u00e4\n")
         buf.write("\35\r\35\16\35\u00e5\3\35\5\35\u00e9\n\35\3\36\3\36\3")
         buf.write("\36\3\36\3\36\3\37\6\37\u00f1\n\37\r\37\16\37\u00f2\3")
-        buf.write("\37\3\37\3 \3 \3 \3 \3!\3!\3!\3!\2\2\"\4\3\6\4\b\5\n\6")
+        buf.write('\37\3\37\3 \3 \3 \3 \3!\3!\3!\3!\2\2"\4\3\6\4\b\5\n\6')
         buf.write("\f\7\16\b\20\t\22\n\24\13\26\f\30\r\32\16\34\17\36\20")
-        buf.write(" \21\"\22$\23&\24(\25*\26,\27.\30\60\2\62\2\64\2\66\2")
+        buf.write(' \21"\22$\23&\24(\25*\26,\27.\30\60\2\62\2\64\2\66\2')
         buf.write("8\2:\31<\2>\32@\33B\2\4\2\3\4\4\2C\\c|\5\2\13\f\16\17")
-        buf.write("\"\"\2\u0101\2\4\3\2\2\2\2\6\3\2\2\2\2\b\3\2\2\2\2\n\3")
+        buf.write('""\2\u0101\2\4\3\2\2\2\2\6\3\2\2\2\2\b\3\2\2\2\2\n\3')
         buf.write("\2\2\2\2\f\3\2\2\2\2\16\3\2\2\2\2\20\3\2\2\2\2\22\3\2")
         buf.write("\2\2\2\24\3\2\2\2\2\26\3\2\2\2\2\30\3\2\2\2\2\32\3\2\2")
-        buf.write("\2\2\34\3\2\2\2\2\36\3\2\2\2\2 \3\2\2\2\2\"\3\2\2\2\2")
+        buf.write('\2\2\34\3\2\2\2\2\36\3\2\2\2\2 \3\2\2\2\2"\3\2\2\2\2')
         buf.write("$\3\2\2\2\2&\3\2\2\2\2(\3\2\2\2\2*\3\2\2\2\2,\3\2\2\2")
         buf.write("\2.\3\2\2\2\2:\3\2\2\2\2<\3\2\2\2\2>\3\2\2\2\3@\3\2\2")
         buf.write("\2\3B\3\2\2\2\4\\\3\2\2\2\6t\3\2\2\2\b\u0083\3\2\2\2\n")
         buf.write("\u008f\3\2\2\2\f\u0099\3\2\2\2\16\u00a9\3\2\2\2\20\u00ab")
         buf.write("\3\2\2\2\22\u00ad\3\2\2\2\24\u00af\3\2\2\2\26\u00b3\3")
         buf.write("\2\2\2\30\u00b7\3\2\2\2\32\u00b9\3\2\2\2\34\u00bb\3\2")
-        buf.write("\2\2\36\u00bd\3\2\2\2 \u00bf\3\2\2\2\"\u00c1\3\2\2\2$")
+        buf.write('\2\2\36\u00bd\3\2\2\2 \u00bf\3\2\2\2"\u00c1\3\2\2\2$')
         buf.write("\u00c3\3\2\2\2&\u00c5\3\2\2\2(\u00c7\3\2\2\2*\u00cb\3")
         buf.write("\2\2\2,\u00ce\3\2\2\2.\u00d2\3\2\2\2\60\u00d5\3\2\2\2")
         buf.write("\62\u00d7\3\2\2\2\64\u00db\3\2\2\2\66\u00dd\3\2\2\28\u00df")
@@ -88,7 +88,7 @@ def serializedATN():
         buf.write("\35\3\2\2\2\u00bd\u00be\7.\2\2\u00be\37\3\2\2\2\u00bf")
         buf.write("\u00c0\7\u0080\2\2\u00c0!\3\2\2\2\u00c1\u00c2\7?\2\2\u00c2")
         buf.write("#\3\2\2\2\u00c3\u00c4\7>\2\2\u00c4%\3\2\2\2\u00c5\u00c6")
-        buf.write("\7@\2\2\u00c6\'\3\2\2\2\u00c7\u00c8\7C\2\2\u00c8\u00c9")
+        buf.write("\7@\2\2\u00c6'\3\2\2\2\u00c7\u00c8\7C\2\2\u00c8\u00c9")
         buf.write("\7P\2\2\u00c9\u00ca\7F\2\2\u00ca)\3\2\2\2\u00cb\u00cc")
         buf.write("\7Q\2\2\u00cc\u00cd\7T\2\2\u00cd+\3\2\2\2\u00ce\u00cf")
         buf.write("\7P\2\2\u00cf\u00d0\7Q\2\2\u00d0\u00d1\7V\2\2\u00d1-\3")
@@ -96,7 +96,7 @@ def serializedATN():
         buf.write("\2\2\2\u00d5\u00d6\t\2\2\2\u00d6\61\3\2\2\2\u00d7\u00d8")
         buf.write("\4\63;\2\u00d8\63\3\2\2\2\u00d9\u00dc\7\62\2\2\u00da\u00dc")
         buf.write("\5\62\31\2\u00db\u00d9\3\2\2\2\u00db\u00da\3\2\2\2\u00dc")
-        buf.write("\65\3\2\2\2\u00dd\u00de\7\"\2\2\u00de\67\3\2\2\2\u00df")
+        buf.write('\65\3\2\2\2\u00dd\u00de\7"\2\2\u00de\67\3\2\2\2\u00df')
         buf.write("\u00e0\7)\2\2\u00e09\3\2\2\2\u00e1\u00e3\5\62\31\2\u00e2")
         buf.write("\u00e4\5\64\32\2\u00e3\u00e2\3\2\2\2\u00e4\u00e5\3\2\2")
         buf.write("\2\u00e5\u00e3\3\2\2\2\u00e5\u00e6\3\2\2\2\u00e6\u00e9")
@@ -115,10 +115,9 @@ def serializedATN():
 
 
 class VQLLexer(Lexer):
-
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     Activity = 1
 
@@ -148,35 +147,101 @@ class VQLLexer(Lexer):
     WS = 24
     ACTIVITY = 25
 
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN" ]
+    channelNames = ["DEFAULT_TOKEN_CHANNEL", "HIDDEN"]
 
-    modeNames = [ "DEFAULT_MODE", "Activity" ]
+    modeNames = ["DEFAULT_MODE", "Activity"]
 
-    literalNames = [ "<INVALID>",
-            "'('", "')'", "'ANY'", "'ALL'", "'{'", "'}'", "';'", "','", 
-            "'~'", "'='", "'<'", "'>'", "'AND'", "'OR'", "'NOT'", "'->'" ]
+    literalNames = [
+        "<INVALID>",
+        "'('",
+        "')'",
+        "'ANY'",
+        "'ALL'",
+        "'{'",
+        "'}'",
+        "';'",
+        "','",
+        "'~'",
+        "'='",
+        "'<'",
+        "'>'",
+        "'AND'",
+        "'OR'",
+        "'NOT'",
+        "'->'",
+    ]
 
-    symbolicNames = [ "<INVALID>",
-            "ISEVENTUALLYFOLLOWED", "ISDIRECTLYFOLLOWED", "ISCONCURRENT", 
-            "ISSTARTTOKEN", "ISENDTOKEN", "ISCONTAINED", "LPAR", "RPAR", 
-            "ANY", "ALL", "LCBRACKET", "RCBRACKET", "SEMICOLON", "COMMA", 
-            "GROUPINVERSE", "EQUALS", "LT", "GT", "AND", "OR", "NOT", "IMPLIES", 
-            "NUMBER", "WS", "ACTIVITY" ]
+    symbolicNames = [
+        "<INVALID>",
+        "ISEVENTUALLYFOLLOWED",
+        "ISDIRECTLYFOLLOWED",
+        "ISCONCURRENT",
+        "ISSTARTTOKEN",
+        "ISENDTOKEN",
+        "ISCONTAINED",
+        "LPAR",
+        "RPAR",
+        "ANY",
+        "ALL",
+        "LCBRACKET",
+        "RCBRACKET",
+        "SEMICOLON",
+        "COMMA",
+        "GROUPINVERSE",
+        "EQUALS",
+        "LT",
+        "GT",
+        "AND",
+        "OR",
+        "NOT",
+        "IMPLIES",
+        "NUMBER",
+        "WS",
+        "ACTIVITY",
+    ]
 
-    ruleNames = [ "ISEVENTUALLYFOLLOWED", "ISDIRECTLYFOLLOWED", "ISCONCURRENT", 
-                  "ISSTARTTOKEN", "ISENDTOKEN", "ISCONTAINED", "LPAR", "RPAR", 
-                  "ANY", "ALL", "LCBRACKET", "RCBRACKET", "SEMICOLON", "COMMA", 
-                  "GROUPINVERSE", "EQUALS", "LT", "GT", "AND", "OR", "NOT", 
-                  "IMPLIES", "LETTER", "NDIGIT", "DIGIT", "SPACE", "APOSTROPHE", 
-                  "NUMBER", "SACTIVITY", "WS", "ACTIVITY", "ACTIVITYNAME" ]
+    ruleNames = [
+        "ISEVENTUALLYFOLLOWED",
+        "ISDIRECTLYFOLLOWED",
+        "ISCONCURRENT",
+        "ISSTARTTOKEN",
+        "ISENDTOKEN",
+        "ISCONTAINED",
+        "LPAR",
+        "RPAR",
+        "ANY",
+        "ALL",
+        "LCBRACKET",
+        "RCBRACKET",
+        "SEMICOLON",
+        "COMMA",
+        "GROUPINVERSE",
+        "EQUALS",
+        "LT",
+        "GT",
+        "AND",
+        "OR",
+        "NOT",
+        "IMPLIES",
+        "LETTER",
+        "NDIGIT",
+        "DIGIT",
+        "SPACE",
+        "APOSTROPHE",
+        "NUMBER",
+        "SACTIVITY",
+        "WS",
+        "ACTIVITY",
+        "ACTIVITYNAME",
+    ]
 
     grammarFileName = "VQLLexer.g4"
 
-    def __init__(self, input=None, output:TextIO = sys.stdout):
+    def __init__(self, input=None, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
-        self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
+        self._interp = LexerATNSimulator(
+            self, self.atn, self.decisionsToDFA, PredictionContextCache()
+        )
         self._actions = None
         self._predicates = None
-
-

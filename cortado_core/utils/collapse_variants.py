@@ -3,7 +3,13 @@ from typing import Dict, List
 
 from pm4py.objects.log.obj import Trace
 
-from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, LeafGroup, LoopGroup
+from cortado_core.utils.split_graph import (
+    Group,
+    SequenceGroup,
+    ParallelGroup,
+    LeafGroup,
+    LoopGroup,
+)
 
 
 def collapse_variants(variants: Dict[Group, List[Trace]]) -> Dict[Group, List[Trace]]:
@@ -32,8 +38,11 @@ def collapse_variant(variant: Group) -> Group:
     next_insert_child = children[0]
 
     for i in range(1, len(children)):
-        if children[i].number_of_activities() > 1 or not isinstance(children[i], LeafGroup) or children[i] != children[
-            i - 1]:
+        if (
+            children[i].number_of_activities() > 1
+            or not isinstance(children[i], LeafGroup)
+            or children[i] != children[i - 1]
+        ):
             collapsed_children.append(next_insert_child)
             next_insert_child = children[i]
         else:

@@ -3,14 +3,23 @@ import math
 import random
 from copy import copy
 
-from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator, ConcurrencyTree, cTreeFromcGroup
-from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, LoopGroup
+from cortado_core.subprocess_discovery.concurrency_trees.cTrees import (
+    cTreeOperator,
+    ConcurrencyTree,
+    cTreeFromcGroup,
+)
+from cortado_core.utils.split_graph import (
+    Group,
+    SequenceGroup,
+    ParallelGroup,
+    LoopGroup,
+)
 
 THRESHOLD = 1_000_000
 
 
 def generate_sequentializations(variant: Group, n_sequentializations: int = -1):
-    """ Calculates a given number of sequentializations for a given variant. In general, the algorithm creates the
+    """Calculates a given number of sequentializations for a given variant. In general, the algorithm creates the
         number of sequentializations by first calculating all sequentializations, followed by a sampling step. However,
         in rare cases, it might happen that the number of sequentializations is too large to be sequentialized (here:
         above THRESHOLD). In these cases, we first randomly change some concurrent and fallthrough to sequential
@@ -22,7 +31,9 @@ def generate_sequentializations(variant: Group, n_sequentializations: int = -1):
     :return:
     """
     if n_sequentializations > -1:
-        variant = preprocess_variant_to_undershoot_threshold(variant, max(THRESHOLD, n_sequentializations*10))
+        variant = preprocess_variant_to_undershoot_threshold(
+            variant, max(THRESHOLD, n_sequentializations * 10)
+        )
 
     sequentializations = generate_variants(variant)
 
@@ -50,7 +61,10 @@ def get_concurrent_fallthrough_operator_nodes(variant_tree: ConcurrencyTree):
         return []
 
     result = []
-    if variant_tree.op == cTreeOperator.Concurrent or variant_tree.op == cTreeOperator.Fallthrough:
+    if (
+        variant_tree.op == cTreeOperator.Concurrent
+        or variant_tree.op == cTreeOperator.Fallthrough
+    ):
         result.append(variant_tree)
 
     for child in variant_tree.children:
@@ -81,13 +95,19 @@ def get_number_of_sequentializations_and_leaves(variant_tree: ConcurrencyTree):
     if variant_tree.op == cTreeOperator.Sequential:
         result_sequentialzations, result_leaves = 1, 0
         for child in variant_tree.children:
-            result_seq_child, result_leaves_child = get_number_of_sequentializations_and_leaves(child)
+            (
+                result_seq_child,
+                result_leaves_child,
+            ) = get_number_of_sequentializations_and_leaves(child)
             result_sequentialzations *= result_seq_child
             result_leaves += result_leaves_child
         return result_sequentialzations, result_leaves
 
     if variant_tree.op == cTreeOperator.Concurrent:
-        group_numbers = [get_number_of_sequentializations_and_leaves(child) for child in variant_tree.children]
+        group_numbers = [
+            get_number_of_sequentializations_and_leaves(child)
+            for child in variant_tree.children
+        ]
         groups_with_one_leaf = [(s, n) for s, n in group_numbers if n == 1]
         groups_with_more_leaves = [(s, n) for s, n in group_numbers if n > 1]
 
@@ -104,7 +124,7 @@ def get_number_of_sequentializations_and_leaves(variant_tree: ConcurrencyTree):
 
         return result_sequentializations, result_leaves
 
-    raise Exception('group type is unknown')
+    raise Exception("group type is unknown")
 
 
 def generate_variants(variant):

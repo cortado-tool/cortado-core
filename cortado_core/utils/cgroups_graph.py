@@ -1,27 +1,38 @@
 from typing import Mapping
+
 import networkx as nx
-from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY, \
-    DEFAULT_NAME_KEY
-from cortado_core.utils.timestamp_utils import TimeUnit, transform_timestamp
+from pm4py.util.xes_constants import (
+    DEFAULT_START_TIMESTAMP_KEY,
+    DEFAULT_TIMESTAMP_KEY,
+    DEFAULT_NAME_KEY,
+)
+
+from cortado_core.utils.timestamp_utils import transform_timestamp
 
 
 class ConcurrencyGroup:
     def __init__(self):
-        self.events = []
+        self.events = set()
         self.concurrency_pairs = set()
         self.follows = set()
         self.directly_follows = set()
         self.start_activities = set()
         self.end_activities = set()
+        self.id = None
 
     def get(self):
-        return (frozenset(self.events), frozenset([frozenset(e) for e in self.concurrency_pairs]),
-                frozenset(self.directly_follows), frozenset(self.start_activities), frozenset(self.end_activities),
-                frozenset(self.follows))
+        return (
+            frozenset(self.events),
+            frozenset([frozenset(e) for e in self.concurrency_pairs]),
+            frozenset(self.directly_follows),
+            frozenset(self.start_activities),
+            frozenset(self.end_activities),
+            frozenset(self.follows),
+        )
 
     def to_simple(self):
         return frozenset(self.events)
-        
+
     def to_nx_graph(self):
         G = nx.DiGraph()
 
@@ -40,12 +51,10 @@ class ConcurrencyGroup:
         return G
 
     def restore_names(self, names: Mapping[str, str], id_name_map):
-
         def _restore_names_unary(graph_set):
             tmp = {}
 
             for e in graph_set:
-
                 if names[e] in tmp:
                     tmp[names[e]].add(id_name_map[e])
 
@@ -57,19 +66,16 @@ class ConcurrencyGroup:
         def _restore_names_binary(graph_set, sort=False):
             tmp = {}
 
-            for (x, y) in graph_set:
-
+            for x, y in graph_set:
                 # Sort Concurrency Pairs, such that the lexigographically smaller one is infront
                 if sort:
                     x, y = sorted((x, y))
 
                 if (names[x], names[y]) in tmp:
-                    tmp[(names[x], names[y])].add(
-                        (id_name_map[x], id_name_map[y]))
+                    tmp[(names[x], names[y])].add((id_name_map[x], id_name_map[y]))
 
                 else:
-                    tmp[(names[x], names[y])] = set(
-                        [(id_name_map[x], id_name_map[y])])
+                    tmp[(names[x], names[y])] = set([(id_name_map[x], id_name_map[y])])
 
             return tmp
 
@@ -78,9 +84,9 @@ class ConcurrencyGroup:
         self.end_activities = _restore_names_unary(self.end_activities)
 
         self.concurrency_pairs = _restore_names_binary(
-            self.concurrency_pairs, sort=True)
-        self.directly_follows = _restore_names_binary(
-            self.directly_follows, sort=False)
+            self.concurrency_pairs, sort=True
+        )
+        self.directly_follows = _restore_names_binary(self.directly_follows, sort=False)
         self.follows = _restore_names_binary(self.follows, sort=False)
 
     def __eq__(self, o: object) -> bool:
@@ -110,22 +116,25 @@ def cgroups_graph(trace, time_granularity):
 
     is_start = True
 
-    for i, event in enumerate(trace):
-        start = transform_timestamp(
-            event[DEFAULT_START_TIMESTAMP_KEY], time_granularity)
+    for event in trace:
+        event[DEFAULT_START_TIMESTAMP_KEY] = transform_timestamp(
+            event[DEFAULT_START_TIMESTAMP_KEY], time_granularity
+        )
 
-        complete = transform_timestamp(
-            event[DEFAULT_TIMESTAMP_KEY], time_granularity)
+        event[DEFAULT_TIMESTAMP_KEY] = transform_timestamp(
+            event[DEFAULT_TIMESTAMP_KEY], time_granularity
+        )
+
+    for i, event in enumerate(trace):
+        complete = event[DEFAULT_TIMESTAMP_KEY]
 
         activity = event[DEFAULT_NAME_KEY]
         activities.add(activity)
         earliest_complete = None
 
-        for event2 in trace[i + 1:]:
-            start2 = transform_timestamp(
-                event2[DEFAULT_START_TIMESTAMP_KEY], time_granularity)
-            complete2 = transform_timestamp(
-                event2[DEFAULT_TIMESTAMP_KEY], time_granularity)
+        for event2 in trace[i + 1 :]:
+            start2 = event2[DEFAULT_START_TIMESTAMP_KEY]
+            complete2 = event2[DEFAULT_TIMESTAMP_KEY]
             activity2 = event2[DEFAULT_NAME_KEY]
 
             if complete < start2:
@@ -137,7 +146,7 @@ def cgroups_graph(trace, time_granularity):
 
                 is_start = False
 
-                if earliest_complete is None or earliest_complete > start2:
+                if earliest_complete is None or earliest_complete >= start2:
                     directly_follows.add((activity, activity2))
 
                     if earliest_complete is None:

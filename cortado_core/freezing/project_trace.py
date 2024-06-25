@@ -1,17 +1,38 @@
 import copy
-from typing import List, Dict, Set, Tuple, OrderedDict, FrozenSet
+from typing import List, Dict, Set, Tuple, OrderedDict, FrozenSet, Union
 
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.obj import Operator as ProcessTreeOperator
-from pm4py.algo.conformance.alignments.petri_net.algorithm import apply as calculate_alignment
-from pm4py.algo.conformance.alignments.petri_net.algorithm import variants as variants_calculate_alignments
+from pm4py.algo.conformance.alignments.petri_net.algorithm import (
+    apply as calculate_alignment,
+)
+from pm4py.algo.conformance.alignments.petri_net.algorithm import (
+    variants as variants_calculate_alignments,
+)
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
 from pm4py.vis import view_process_tree
+from cortado_core.models.infix_type import InfixType
 
-from cortado_core.process_tree_utils.miscellaneous import pt_dict_key, subtree_is_part_of_tree_based_on_obj_id, is_leaf_node
-from cortado_core.process_tree_utils.to_petri_net_transition_bordered import apply as pt_to_petri_net
-from cortado_core.utils.alignment_utils import is_log_move, is_sync_move, is_model_move, is_model_move_on_visible_activity
+from cortado_core.process_tree_utils.miscellaneous import (
+    pt_dict_key,
+    subtree_is_part_of_tree_based_on_obj_id,
+    is_leaf_node,
+)
+from cortado_core.process_tree_utils.to_petri_net_transition_bordered import (
+    apply as pt_to_petri_net,
+)
+from cortado_core.utils.alignment_utils import (
+    calculate_alignment_typed_trace,
+    is_log_move,
+    is_sync_move,
+    is_model_move,
+    is_model_move_on_visible_activity,
+)
+from cortado_core.utils.sublog_utils import (
+    generate_full_alignment_based_on_infix_alignment,
+)
+from cortado_core.utils.trace import TypedTrace
 
 
 def __generate_process_tree_from_frozen_trees(trees: List[ProcessTree]):
@@ -39,30 +60,45 @@ def __generate_loop_with_frozen_tree(tree: ProcessTree) -> ProcessTree:
     return res
 
 
-def project_trace(trace: Trace, frozen_subtrees_replacement_labels: OrderedDict[Tuple[ProcessTree, int], str]) -> \
-        Tuple[Dict[FrozenSet[Tuple[ProcessTree, int]], Trace], Trace]:
+def project_trace(
+    trace: Union[Trace, TypedTrace],
+    frozen_subtrees_replacement_labels: OrderedDict[Tuple[ProcessTree, int], str],
+) -> Tuple[Dict[FrozenSet[Tuple[ProcessTree, int]], Trace], Trace]:
+    if isinstance(trace, Trace):
+        trace = TypedTrace(trace, InfixType.NOT_AN_INFIX)
+
     # for pt_1, pt_2 in itertools.combinations(frozen_subtrees, 2):
     #     assert pt_1 != pt_2  # TODO discuss if there is a solution to not require pt_1 != pt_2
 
     # prepare frozen_subtrees, i.e., deepcopy frozen trees because they get changed and added to a new tree
-    copied_frozen_subtrees_replacement_label: Dict[Tuple[ProcessTree, int], str] = OrderedDict()
+    copied_frozen_subtrees_replacement_label: Dict[Tuple[ProcessTree, int], str] = (
+        OrderedDict()
+    )
     copied_frozen_subtrees: List[ProcessTree] = []
-    mapping_copied_tree_to_original_tree: Dict[Tuple[ProcessTree, int], Tuple[ProcessTree, int]] = {}
+    mapping_copied_tree_to_original_tree: Dict[
+        Tuple[ProcessTree, int], Tuple[ProcessTree, int]
+    ] = {}
     for k in frozen_subtrees_replacement_labels:
         tree_copy = copy.deepcopy(k[0])
         mapping_copied_tree_to_original_tree[pt_dict_key(tree_copy)] = k
         copied_frozen_subtrees.append(tree_copy)
-        copied_frozen_subtrees_replacement_label[pt_dict_key(tree_copy)] = frozen_subtrees_replacement_labels[k]
+        copied_frozen_subtrees_replacement_label[pt_dict_key(tree_copy)] = (
+            frozen_subtrees_replacement_labels[k]
+        )
     copied_frozen_subtrees: List[ProcessTree] = []
     for k in copied_frozen_subtrees_replacement_label:
         copied_frozen_subtrees.append(k[0])
 
-    frozen_subtrees_model = __generate_process_tree_from_frozen_trees(copied_frozen_subtrees)
+    frozen_subtrees_model = __generate_process_tree_from_frozen_trees(
+        copied_frozen_subtrees
+    )
     # view_process_tree(frozen_subtrees_model, "svg")
 
-    net, im, fm = pt_to_petri_net(frozen_subtrees_model)
-    alignment = calculate_alignment(trace, net, im, fm, parameters={'ret_tuple_as_trans_desc': True},
-                                    variant=variants_calculate_alignments.state_equation_a_star)
+    alignment = calculate_alignment_typed_trace(frozen_subtrees_model, trace)
+    if trace.infix_type != InfixType.NOT_AN_INFIX:
+        alignment = generate_full_alignment_based_on_infix_alignment(
+            trace.infix_type, alignment
+        )
 
     res: Dict[FrozenSet[Tuple[ProcessTree, int]], Trace] = {}
     # gradually create projected trace by following the order in frozen_subtrees_replacement_labels
@@ -75,7 +111,7 @@ def project_trace(trace: Trace, frozen_subtrees_replacement_labels: OrderedDict[
         active_frozen_trees_fully_executed: Set[Tuple[ProcessTree, int]] = set()
         active_frozen_trees_incompletely_executed: Set[Tuple[ProcessTree, int]] = set()
 
-        for i, step in enumerate(alignment['alignment']):
+        for i, step in enumerate(alignment["alignment"]):
             if is_log_move(step):
                 activity = step[1][0]
                 provisional_trace.append(activity)
@@ -84,42 +120,76 @@ def project_trace(trace: Trace, frozen_subtrees_replacement_labels: OrderedDict[
                 executed_tree: ProcessTree = step[0][1][0]
                 tree_status: str = step[0][1][1]
 
-                if pt_dict_key(executed_tree) in copied_frozen_subtrees_replacement_label and \
-                        pt_dict_key(executed_tree) in currently_considered_frozen_subtrees:
-
-                    if tree_status == 'active':
+                if (
+                    pt_dict_key(executed_tree)
+                    in copied_frozen_subtrees_replacement_label
+                    and pt_dict_key(executed_tree)
+                    in currently_considered_frozen_subtrees
+                ):
+                    if tree_status == "active":
                         # look ahead to see if frozen tree was fully executed, i.e., no model moves regarding frozen subtree
                         executed_tree_not_yet_closed = True
                         j = i + 1
                         while executed_tree_not_yet_closed:
-                            step_ahead = alignment['alignment'][j]
+                            step_ahead = alignment["alignment"][j]
                             corresponding_tree_ahead = step_ahead[0][1][0]
                             # look ahead until tree is closed again
-                            if corresponding_tree_ahead is executed_tree and step_ahead[0][1][1] == 'closed':
+                            if (
+                                corresponding_tree_ahead is executed_tree
+                                and step_ahead[0][1][1] == "closed"
+                            ):
                                 executed_tree_not_yet_closed = False
                                 continue
                             # corresponding tree is a frozen subtree that just got activated (position i in alignment)
-                            if is_model_move(step_ahead) and is_leaf_node(corresponding_tree_ahead) and \
-                                    subtree_is_part_of_tree_based_on_obj_id(corresponding_tree_ahead, executed_tree) and \
-                                    is_model_move_on_visible_activity(step_ahead):
+                            if (
+                                is_model_move(step_ahead)
+                                and is_leaf_node(corresponding_tree_ahead)
+                                and subtree_is_part_of_tree_based_on_obj_id(
+                                    corresponding_tree_ahead, executed_tree
+                                )
+                                and is_model_move_on_visible_activity(step_ahead)
+                            ):
                                 # mark activated frozen subtree (executed_tree) as incompletely executed
-                                active_frozen_trees_incompletely_executed.add(pt_dict_key(executed_tree))
+                                active_frozen_trees_incompletely_executed.add(
+                                    pt_dict_key(executed_tree)
+                                )
                             j += 1
-                        if pt_dict_key(executed_tree) not in active_frozen_trees_incompletely_executed:
-                            active_frozen_trees_fully_executed.add(pt_dict_key(executed_tree))
+                        if (
+                            pt_dict_key(executed_tree)
+                            not in active_frozen_trees_incompletely_executed
+                        ):
+                            active_frozen_trees_fully_executed.add(
+                                pt_dict_key(executed_tree)
+                            )
                             # add activation of a frozen tree if fully executed
                             provisional_trace.append(
-                                copied_frozen_subtrees_replacement_label[pt_dict_key(executed_tree)] + '+ACTIVATED')
+                                copied_frozen_subtrees_replacement_label[
+                                    pt_dict_key(executed_tree)
+                                ]
+                                + "+ACTIVATED"
+                            )
                         else:
                             pass
-                    elif tree_status == 'closed':
-                        if pt_dict_key(executed_tree) not in active_frozen_trees_incompletely_executed:
-                            assert pt_dict_key(executed_tree) in active_frozen_trees_fully_executed
+                    elif tree_status == "closed":
+                        if (
+                            pt_dict_key(executed_tree)
+                            not in active_frozen_trees_incompletely_executed
+                        ):
+                            assert (
+                                pt_dict_key(executed_tree)
+                                in active_frozen_trees_fully_executed
+                            )
                             # add closing of a frozen tree if fully executed
                             provisional_trace.append(
-                                copied_frozen_subtrees_replacement_label[pt_dict_key(executed_tree)] + '+CLOSED')
+                                copied_frozen_subtrees_replacement_label[
+                                    pt_dict_key(executed_tree)
+                                ]
+                                + "+CLOSED"
+                            )
                             # remove frozen tree from active list
-                            active_frozen_trees_fully_executed.remove(pt_dict_key(executed_tree))
+                            active_frozen_trees_fully_executed.remove(
+                                pt_dict_key(executed_tree)
+                            )
             elif is_sync_move(step):
                 executed_tree: ProcessTree = step[0][1][0]
                 # check if executed_tree is part of a fully executed frozen tree
@@ -133,8 +203,9 @@ def project_trace(trace: Trace, frozen_subtrees_replacement_labels: OrderedDict[
         for e in provisional_trace:
             event = Event()
             print(e)
-            event['concept:name'] = e
+            event["concept:name"] = e
             t.append(event)
+        t = TypedTrace(t, trace.infix_type)
         print(t)
 
         original_trees_considered: List[Tuple[ProcessTree, int]] = []
@@ -144,13 +215,13 @@ def project_trace(trace: Trace, frozen_subtrees_replacement_labels: OrderedDict[
     return res, t
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     def __pretty_print_trace(t: Trace):
         res = []
         for a in t:
-            res.append(a['concept:name'])
+            res.append(a["concept:name"])
         return res
-
 
     # pt_1: ProcessTree = pt_parse("-> (*(X(->('A','A','B'),->('C','D')),tau) ,->('E',->('A','F')) )")
     # e1 = Event()
@@ -222,5 +293,5 @@ if __name__ == '__main__':
 
     print("frozen subtree(s):", pt_3)
     print("trace:", __pretty_print_trace(t3))
-    res_1 = project_trace(t3, {pt_dict_key(pt_3): 'X'})
-    print('RESULT:', __pretty_print_trace(res_1), "\n\n")
+    res_1 = project_trace(t3, {pt_dict_key(pt_3): "X"})
+    print("RESULT:", __pretty_print_trace(res_1), "\n\n")

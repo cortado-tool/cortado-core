@@ -2,24 +2,32 @@ import unittest
 import cortado_core.process_tree_utils.reduction as reduction
 from pm4py.objects.process_tree.obj import ProcessTree, Operator
 from pm4py.objects.process_tree.utils.generic import parse as pt_parse
-from cortado_core.process_tree_utils.reduction import __reduce_tau_loops as reduce_tau_loops
+from cortado_core.process_tree_utils.reduction import (
+    __reduce_tau_loops as reduce_tau_loops,
+)
 
 
 class ReductionRuleTests(unittest.TestCase):
     def test_remove_nodes_two_one_child_parents(self):
         pt_test = pt_parse("->(->('a'))")
         pt_true = pt_parse("'a'")
-        self.assertEqual(pt_true, reduction.remove_operator_node_with_one_or_no_child(pt_test))
+        self.assertEqual(
+            pt_true, reduction.remove_operator_node_with_one_or_no_child(pt_test)
+        )
 
     def test_Remove_Nodes_One_Child(self):
         pt_test = pt_parse("->('A', 'B', X('C'))")
         pt_true = pt_parse("->('A', 'B', 'C')")
-        self.assertEqual(reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true)
+        self.assertEqual(
+            reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true
+        )
 
     def test_Remove_Nodes_One_Child_Root(self):
         pt_test = pt_parse("->('A')")
         pt_true = pt_parse("'A'")
-        self.assertEqual(reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true)
+        self.assertEqual(
+            reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true
+        )
 
     def test_Remove_Nodes_No_Child(self):
         pt_r = ProcessTree(operator=Operator.SEQUENCE)
@@ -33,27 +41,37 @@ class ReductionRuleTests(unittest.TestCase):
 
         pt_true = pt_parse("+('A','C')")
 
-        self.assertEqual(reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true)
+        self.assertEqual(
+            reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true
+        )
 
     def test_Remove_Nodes_No_Child_Root(self):
         pt_test = ProcessTree(operator=Operator.SEQUENCE)
         pt_true = None
-        self.assertEqual(reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true)
+        self.assertEqual(
+            reduction.remove_operator_node_with_one_or_no_child(pt_test), pt_true
+        )
 
     def test_associativity_reduction_choice(self):
-        pt_test = pt_parse("X('A', 'B', X('Y', ->('C', 'E'), 'X', X('H', 'I', X('M', 'N'))))")
+        pt_test = pt_parse(
+            "X('A', 'B', X('Y', ->('C', 'E'), 'X', X('H', 'I', X('M', 'N'))))"
+        )
         pt_true = pt_parse("X('A', 'B', 'Y', ->('C', 'E'), 'X', 'H', 'I', 'M', 'N')")
         reduction._associativity_reduction_choice_parallelism(pt_test)
         self.assertEqual((pt_test), pt_true)
 
     def test_associativity_reduction_parallelism(self):
-        pt_test = pt_parse("+('A', 'B', +('Y', ->('C', 'E'), 'X', +('H', 'I', +('M', 'N'))))")
+        pt_test = pt_parse(
+            "+('A', 'B', +('Y', ->('C', 'E'), 'X', +('H', 'I', +('M', 'N'))))"
+        )
         pt_true = pt_parse("+('A', 'B', 'Y', ->('C', 'E'), 'X', 'H', 'I', 'M', 'N')")
         reduction._associativity_reduction_choice_parallelism(pt_test)
         self.assertEqual((pt_test), pt_true)
 
     def test_reduce_sequences(self):
-        pt_test = pt_parse("->('A', 'B', ->('Y', ->('C', 'E'), 'X', ->('H', 'I', +('M', 'N'))))")
+        pt_test = pt_parse(
+            "->('A', 'B', ->('Y', ->('C', 'E'), 'X', ->('H', 'I', +('M', 'N'))))"
+        )
         pt_true = pt_parse("->('A', 'B', 'Y', 'C', 'E', 'X', 'H', 'I', +('M', 'N'))")
 
         reduction._reduce_sequences(pt_test)
@@ -118,8 +136,12 @@ class ReductionRuleTests(unittest.TestCase):
         self.assertEqual(pt_test_1, pt_true_1)
 
     def test_apply_reduction_rules(self):
-        pt_test_1 = pt_parse("+('A', 'C', tau, ->('H','G'), ->('X'), X(X('G'), 'H', +('A', 'C', tau, tau, tau, tau)))")
-        pt_true_1 = pt_parse("+('A', 'C', ->('H','G'), ->('X'), X('H', +('A', 'C'), 'G'))")
+        pt_test_1 = pt_parse(
+            "+('A', 'C', tau, ->('H','G'), ->('X'), X(X('G'), 'H', +('A', 'C', tau, tau, tau, tau)))"
+        )
+        pt_true_1 = pt_parse(
+            "+('A', 'C', ->('H','G'), ->('X'), X('H', +('A', 'C'), 'G'))"
+        )
 
         reduction.apply_reduction_rules(pt_test_1)
 
@@ -175,8 +197,10 @@ class ReductionRuleTests(unittest.TestCase):
     def test_reduce_to_at_most_two_loop_children_complex(self):
         pt = pt_parse("*(->('a', X('b', tau)), +('a', 'b'), X('c', +('d', 'e')))")
         reduction.apply_reduction_rules(pt)
-        self.assertEqual(pt_parse("*(->('a', X('b', tau)), X(+('a', 'b'), 'c', +('d', 'e')))"), pt)
+        self.assertEqual(
+            pt_parse("*(->('a', X('b', tau)), X(+('a', 'b'), 'c', +('d', 'e')))"), pt
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

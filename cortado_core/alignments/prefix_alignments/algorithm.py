@@ -5,14 +5,22 @@ from pm4py.objects.petri_net.utils import align_utils
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from pm4py.util import exec_utils
 from enum import Enum
-from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY, PARAMETER_CONSTANT_CASEID_KEY
+from pm4py.util.constants import (
+    PARAMETER_CONSTANT_ACTIVITY_KEY,
+    PARAMETER_CONSTANT_CASEID_KEY,
+)
 from pm4py.objects.log.obj import Trace
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.util import typing as pm4pyTyping
 from pm4py.objects.conversion.process_tree import converter as pt_converter
 
-from cortado_core.process_tree_utils.to_petri_net_transition_bordered import apply as pt_to_petri_net
-from cortado_core.alignments.prefix_alignments.variants import dijkstra_no_heuristics, a_star
+from cortado_core.process_tree_utils.to_petri_net_transition_bordered import (
+    apply as pt_to_petri_net,
+)
+from cortado_core.alignments.prefix_alignments.variants import (
+    dijkstra_no_heuristics,
+    a_star,
+)
 
 
 class Variants(Enum):
@@ -21,10 +29,10 @@ class Variants(Enum):
 
 
 class Parameters(Enum):
-    PARAM_TRACE_COST_FUNCTION = 'trace_cost_function'
-    PARAM_MODEL_COST_FUNCTION = 'model_cost_function'
-    PARAM_SYNC_COST_FUNCTION = 'sync_cost_function'
-    PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE = 'ret_tuple_as_trans_desc'
+    PARAM_TRACE_COST_FUNCTION = "trace_cost_function"
+    PARAM_MODEL_COST_FUNCTION = "model_cost_function"
+    PARAM_SYNC_COST_FUNCTION = "sync_cost_function"
+    PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE = "ret_tuple_as_trans_desc"
     PARAM_TRACE_NET_COSTS = "trace_net_costs"
     TRACE_NET_CONSTR_FUNCTION = "trace_net_constr_function"
     TRACE_NET_COST_AWARE_CONSTR_FUNCTION = "trace_net_cost_aware_constr_function"
@@ -35,7 +43,7 @@ class Parameters(Enum):
     ACTIVITY_KEY = PARAMETER_CONSTANT_ACTIVITY_KEY
     VARIANTS_IDX = "variants_idx"
     SHOW_PROGRESS_BAR = "show_progress_bar"
-    CORES = 'cores'
+    CORES = "cores"
     BEST_WORST_COST_INTERNAL = "best_worst_cost_internal"
     FITNESS_ROUND_DIGITS = "fitness_round_digits"
     PARAM_ENFORCE_FIRST_TAU_MOVE = "enforce_first_tau_move"
@@ -48,10 +56,14 @@ VERSION_A_STAR = Variants.VERSION_A_STAR
 VERSIONS = {Variants.VERSION_DIJKSTRA_NO_HEURISTICS, Variants.VERSION_A_STAR}
 
 
-def calculate_optimal_prefix_alignment(trace: Trace, process_tree: ProcessTree, use_dijkstra: bool = False,
-                                       timeout: int = sys.maxsize,
-                                       use_cortado_tree_converter=False,
-                                       parameters=None) -> pm4pyTyping.AlignmentResult:
+def calculate_optimal_prefix_alignment(
+    trace: Trace,
+    process_tree: ProcessTree,
+    use_dijkstra: bool = False,
+    timeout: int = sys.maxsize,
+    use_cortado_tree_converter=False,
+    parameters=None,
+) -> pm4pyTyping.AlignmentResult:
     if use_cortado_tree_converter:
         net, im, fm = pt_to_petri_net(process_tree)
     else:
@@ -62,8 +74,15 @@ def calculate_optimal_prefix_alignment(trace: Trace, process_tree: ProcessTree, 
         Parameters.PARAM_MAX_ALIGN_TIME_TRACE: timeout,
     }
 
-    alignment = apply_trace(trace, net, im, fm, variant=align_variant, parameters=add_to_parameters(params, parameters))
-    alignment['net'] = (net, im, fm)
+    alignment = apply_trace(
+        trace,
+        net,
+        im,
+        fm,
+        variant=align_variant,
+        parameters=add_to_parameters(params, parameters),
+    )
+    alignment["net"] = (net, im, fm)
 
     return alignment
 
@@ -84,8 +103,14 @@ def add_to_parameters(parameters, new_parameters):
     return parameters
 
 
-def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=None,
-                variant=DEFAULT_VARIANT):
+def apply_trace(
+    trace,
+    petri_net,
+    initial_marking,
+    final_marking,
+    parameters=None,
+    variant=DEFAULT_VARIANT,
+):
     """
     apply alignments to a trace
     Parameters
@@ -122,16 +147,20 @@ def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=Non
 
     parameters = copy(parameters)
 
-    ali = exec_utils.get_variant(variant).apply(trace, petri_net, initial_marking, final_marking,
-                                                parameters=parameters)
+    ali = exec_utils.get_variant(variant).apply(
+        trace, petri_net, initial_marking, final_marking, parameters=parameters
+    )
 
     if ali is None:
         return None
 
     ltrace_bwc = len(trace)
 
-    fitness = 1 - (ali['cost'] // align_utils.STD_MODEL_LOG_MOVE_COST) / (
-        ltrace_bwc) if ltrace_bwc > 0 else 0
+    fitness = (
+        1 - (ali["cost"] // align_utils.STD_MODEL_LOG_MOVE_COST) / (ltrace_bwc)
+        if ltrace_bwc > 0
+        else 0
+    )
 
     ali["fitness"] = fitness
     # returning also the best worst cost, for log fitness computation
@@ -140,10 +169,13 @@ def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=Non
     return ali
 
 
-def __get_best_worst_cost(petri_net, initial_marking, final_marking, variant, parameters):
+def __get_best_worst_cost(
+    petri_net, initial_marking, final_marking, variant, parameters
+):
     parameters_best_worst = copy(parameters)
 
-    best_worst_cost = exec_utils.get_variant(variant).get_best_worst_cost(petri_net, initial_marking, final_marking,
-                                                                          parameters=parameters_best_worst)
+    best_worst_cost = exec_utils.get_variant(variant).get_best_worst_cost(
+        petri_net, initial_marking, final_marking, parameters=parameters_best_worst
+    )
 
     return best_worst_cost

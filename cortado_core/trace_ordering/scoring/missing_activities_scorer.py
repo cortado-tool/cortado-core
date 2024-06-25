@@ -9,8 +9,13 @@ from cortado_core.utils.split_graph import Group, LeafGroup
 
 
 class MissingActivitiesScorer(Scorer):
-    def score(self, log: EventLog, previously_added_variants: List[Group], process_tree: ProcessTree,
-              variant_candidate: Group) -> float:
+    def score(
+        self,
+        log: EventLog,
+        previously_added_variants: List[Group],
+        process_tree: ProcessTree,
+        variant_candidate: Group,
+    ) -> float:
         activities_in_tree, _ = get_all_leaf_node_labels(process_tree)
         activities_in_trace = self.get_activities_in_trace(variant_candidate)
 

@@ -13,9 +13,7 @@ def avg(values):
 
 
 def index(values):
-    return {
-        i: v for (i, v) in enumerate(values) if v is not None
-    }
+    return {i: v for (i, v) in enumerate(values) if v is not None}
 
 
 def stats(values):
@@ -25,22 +23,24 @@ def stats(values):
     values = [v for v in values if v is not None]
     if values:
         stats = {
-            'min': min(values, default=None),
-            'max': max(values, default=None),
-            'mean': statistics.mean(values),
-            'median': statistics.median(values),
-            'n': n,
-            'n_not_none': len(values),
-            '50th': np.percentile(values, 50),
-            '95th': np.percentile(values, 95),
+            "min": min(values, default=None),
+            "max": max(values, default=None),
+            "mean": statistics.mean(values),
+            "median": statistics.median(values),
+            "n": n,
+            "n_not_none": len(values),
+            "50th": np.percentile(values, 50),
+            "95th": np.percentile(values, 95),
         }
         if len(values) > 1:
-            stats['stdev'] = statistics.stdev(values)
-            if stats['mean'] != 0:
-                stats['percentage_variance'] = (statistics.stdev(values) / statistics.mean(values)) * 100
+            stats["stdev"] = statistics.stdev(values)
+            if stats["mean"] != 0:
+                stats["percentage_variance"] = (
+                    statistics.stdev(values) / statistics.mean(values)
+                ) * 100
         else:
-            stats['stdev'] = 0
-            stats['percentage_variance'] = 0
+            stats["stdev"] = 0
+            stats["percentage_variance"] = 0
         return stats
     else:
         return None

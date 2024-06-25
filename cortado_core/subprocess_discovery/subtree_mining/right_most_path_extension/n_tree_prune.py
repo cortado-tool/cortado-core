@@ -10,9 +10,9 @@ from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_componen
 )
 from cortado_core.subprocess_discovery.subtree_mining.tree_pattern import TreePattern
 
+
 # Pruning Strategy testing if all subtrees of size k-1 of a size k subtree are frequent
 def n_tree_prune(tp: TreePattern, patterns: Set[str]):
-
     return (
         all(
             [sub in patterns for sub in compute_valid_leaf_eliminated_children(tp.tree)]

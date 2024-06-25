@@ -18,25 +18,22 @@ class TimeUnit(str, Enum):
 
     def __gt__(self, other):
         if isinstance(other, TimeUnit):
-            return (
-                self._member_names_.index(self.name) >
-                self._member_names_.index(other.name)
+            return self._member_names_.index(self.name) > self._member_names_.index(
+                other.name
             )
         return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, TimeUnit):
-            return (
-                self._member_names_.index(self.name) <
-                self._member_names_.index(other.name)
+            return self._member_names_.index(self.name) < self._member_names_.index(
+                other.name
             )
         return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, TimeUnit):
-            return (
-                self._member_names_.index(self.name) ==
-                self._member_names_.index(other.name)
+            return self._member_names_.index(self.name) == self._member_names_.index(
+                other.name
             )
         return NotImplemented
 
@@ -68,18 +65,17 @@ def transform_timestamp(timestamp: datetime, granularity: TimeUnit):
 
 def get_time_granularity(event_log: EventLog):
     sample = sample_log(event_log, 500)
-    timestamps = [event[DEFAULT_TIMESTAMP_KEY]
-                  for trace in sample for event in trace]
+    timestamps = [event[DEFAULT_TIMESTAMP_KEY] for trace in sample for event in trace]
 
-    if not_all_zero(timestamps, 'microsecond'):
+    if not_all_zero(timestamps, "microsecond"):
         return TimeUnit.MS
-    elif not_all_zero(timestamps, 'second'):
+    elif not_all_zero(timestamps, "second"):
         return TimeUnit.SEC
-    elif not_all_zero(timestamps, 'minute'):
+    elif not_all_zero(timestamps, "minute"):
         return TimeUnit.MIN
-    elif not_all_zero(timestamps, 'hour'):
+    elif not_all_zero(timestamps, "hour"):
         return TimeUnit.HOUR
-    elif not_all_zero(timestamps, 'day'):
+    elif not_all_zero(timestamps, "day"):
         return TimeUnit.DAY
 
 

@@ -1,9 +1,11 @@
+from os import path
 from antlr4 import *
 from cortado_core.variant_query_language.error_handling import ParseError, LexerError
 from cortado_core.variant_query_language.parse_query import (
     parse_query_to_query_tree,
     parse_query_to_tree,
 )
+
 
 def print_tree(tree, lev):
     print(" " * lev) + "` " + str(tree)
@@ -12,11 +14,8 @@ def print_tree(tree, lev):
 
 
 def main():
-
-    with open(".\\cortado_core\\tests\\files\\input.txt", "r") as f:
-
+    with open(path.join("cortado_core", "tests", "files", "input.txt"), "r") as f:
         for line in f.readlines():
-
             try:
                 print()
                 print("Line", line)

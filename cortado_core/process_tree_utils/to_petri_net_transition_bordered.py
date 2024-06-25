@@ -13,7 +13,7 @@ def apply(tree: ProcessTree) -> Tuple[PetriNet, Marking, Marking]:
     """
     net = PetriNet(name=str(tree))
     if len(tree.children) == 0:
-        pn_util.add_transition(net, label=tree.label, name=(tree, 'active+closed'))
+        pn_util.add_transition(net, label=tree.label, name=(tree, "active+closed"))
     else:
         sub_nets = list()
         for c in tree.children:
@@ -24,7 +24,7 @@ def apply(tree: ProcessTree) -> Tuple[PetriNet, Marking, Marking]:
             pt_operator.SEQUENCE: construct_sequence_pattern,
             pt_operator.XOR: construct_xor_pattern,
             pt_operator.PARALLEL: construct_and_pattern,
-            pt_operator.LOOP: construct_loop_pattern
+            pt_operator.LOOP: construct_loop_pattern,
         }
         net, ini, fin = switch[tree.operator](net, sub_nets, tree)
     if tree.parent is None:
@@ -51,9 +51,9 @@ def _get_sink_transition(sub_net):
 
 
 def _add_src_sink_transitions(net, p_s, p_t, tree):
-    src = pn_util.add_transition(net, name=(tree, 'active'))
+    src = pn_util.add_transition(net, name=(tree, "active"))
     pn_util.add_arc_from_to(src, p_s, net)
-    sink = pn_util.add_transition(net, name=(tree, 'closed'))
+    sink = pn_util.add_transition(net, name=(tree, "closed"))
     pn_util.add_arc_from_to(p_t, sink, net)
     return net, Marking(), Marking()
 
@@ -65,9 +65,9 @@ def construct_sequence_pattern(net, sub_nets, tree):
     for i in range(len(sub_nets)):
         pn_util.add_arc_from_to(places[i], _get_src_transition(sub_nets[i]), net)
         pn_util.add_arc_from_to(_get_sink_transition(sub_nets[i]), places[i + 1], net)
-    src = pn_util.add_transition(net, name=(tree, 'active'))
+    src = pn_util.add_transition(net, name=(tree, "active"))
     pn_util.add_arc_from_to(src, places[0], net)
-    sink = pn_util.add_transition(net, name=(tree, 'closed'))
+    sink = pn_util.add_transition(net, name=(tree, "closed"))
     pn_util.add_arc_from_to(places[len(places) - 1], sink, net)
     return net, Marking(), Marking()
 
@@ -89,17 +89,17 @@ def construct_and_pattern(net, sub_nets, tree):
         p_t[i] = pn_util.add_place(net)
         pn_util.add_arc_from_to(p_s[i], _get_src_transition(sub_nets[i]), net)
         pn_util.add_arc_from_to(_get_sink_transition(sub_nets[i]), p_t[i], net)
-    src = pn_util.add_transition(net, name=(tree, 'active'))
+    src = pn_util.add_transition(net, name=(tree, "active"))
     for p in p_s:
         pn_util.add_arc_from_to(src, p, net)
-    sink = pn_util.add_transition(net, name=(tree, 'closed'))
+    sink = pn_util.add_transition(net, name=(tree, "closed"))
     for p in p_t:
         pn_util.add_arc_from_to(p, sink, net)
     return net, Marking(), Marking()
 
 
 def construct_loop_pattern(net, sub_nets, tree):
-    assert (len(sub_nets) == 2)
+    assert len(sub_nets) == 2
     p_s = pn_util.add_place(net)
     p_t = pn_util.add_place(net)
     pn_util.add_arc_from_to(p_s, _get_src_transition(sub_nets[0]), net)
