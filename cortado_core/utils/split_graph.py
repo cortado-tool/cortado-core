@@ -79,7 +79,8 @@ class Group(list):
 
         if "fallthrough" in serialized and isinstance(serialized["fallthrough"], List):
             return FallthroughGroup(
-                lst=[Group.deserialize(group) for group in serialized["fallthrough"]]
+                lst=[Group.deserialize(group) for group in serialized["fallthrough"]],
+                diGraph=nx.node_link_graph(serialized["di_graph"]),
             )
 
         if "leaf" in serialized and isinstance(serialized["leaf"], List):
@@ -132,7 +133,9 @@ class Group(list):
 
             offset += 1
 
-            if not isinstance(group, LeafGroup):
+            if not isinstance(group, LeafGroup) and not isinstance(
+                group, FallthroughGroup
+            ):
                 for member in group:
                     offset = __dfs_traversal(member, offset)
 
@@ -374,21 +377,32 @@ class ChoiceGroup(Group):
 
 
 class FallthroughGroup(Group):
+
+    def __init__(
+        self,
+        lst: tuple = (),
+        infix_type: InfixType = InfixType.NOT_AN_INFIX,
+        id: int = None,
+        diGraph: nx.DiGraph = None,
+    ):
+        super().__init__(lst, infix_type, id)
+        self.diGraph = diGraph
+
     def serialize(self, include_performance=True):
         if include_performance:
             return {
-                "fallthrough": [
-                    e.serialize(include_performance=include_performance)
-                    for e in sorted(self)
-                ],
-                "performance": self.performance,
+                "fallthrough": sorted(self),
+                "performance": self.performance if include_performance else None,
+                "infix_type": self.infix_type,
+                "di_graph": nx.node_link_data(self.diGraph),
+                "id": self.id,
             }
         else:
             return {
-                "fallthrough": [
-                    e.serialize(include_performance=include_performance)
-                    for e in sorted(self)
-                ]
+                "fallthrough": sorted(self),
+                "infix_type": self.infix_type,
+                "di_graph": nx.node_link_data(self.diGraph),
+                "id": self.id,
             }
 
     def __hash__(self):
@@ -435,7 +449,7 @@ class FallthroughGroup(Group):
         return min(counted.values())
 
     def number_of_activities(self) -> int:
-        return sum([e.number_of_activities() for e in self])
+        return len(self)
 
 
 class LoopGroup(Group):
@@ -593,8 +607,7 @@ def split_graph(G_follows, G_parallel):
         groups = parallel_cut(G_follows, G_parallel)
 
     if groups == None:
-        groups = LeafGroup([e for e in G_follows.nodes])
-        # groups = FallthroughGroup([LeafGroup([n]) for n in G_follows.nodes])
+        groups = FallthroughGroup([e for e in G_follows.nodes], diGraph=G_follows)
 
     return groups
 

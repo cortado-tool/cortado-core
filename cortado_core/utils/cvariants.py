@@ -16,7 +16,7 @@ from pm4py.util.xes_constants import (
 from cortado_core.utils.timestamp_utils import TimeUnit, transform_timestamp
 from .cgroups_graph import cgroups_graph, ConcurrencyGroup
 from .parallel_utils import workload_split, workload_split_graphs
-from .split_graph import Group, LeafGroup, ParallelGroup, SequenceGroup, split_group
+from .split_graph import Group, LeafGroup, ParallelGroup, SequenceGroup, FallthroughGroup, split_group
 
 ACTIVITY_INSTANCE_KEY = "cortado_activity_instance"
 
@@ -254,6 +254,10 @@ def restore_names_rek(variant, names):
 
     elif isinstance(variant, LeafGroup):
         g = LeafGroup([names[e] for e in variant])
+        return g
+
+    elif isinstance(variant, FallthroughGroup):
+        g = FallthroughGroup([names[e] for e in variant], diGraph=variant.diGraph)
         return g
 
     return variant
