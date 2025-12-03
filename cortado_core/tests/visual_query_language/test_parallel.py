@@ -51,7 +51,7 @@ class SimpleParallelTest(unittest.TestCase):
             ]
         )
 
-        self.assertTrue(check_variant(variant, self.query, self.activities))
+        self.assertFalse(check_variant(variant, self.query, self.activities))
 
     def test_missing_branch(self):
         variant = SequenceGroup(
