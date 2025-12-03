@@ -1,5 +1,7 @@
 from cortado_core.utils.split_graph import SequenceGroup
 from cortado_core.visual_query_language.matching_algorithm import match_sequential
+from cortado_core.visual_query_language.relaxng.query import build_query
+from cortado_core.visual_query_language.relaxng.variant import build_variant
 from typing import List
 
 
@@ -18,4 +20,7 @@ def check_variant(
         bool: True if the variant matches the query, False otherwise.
     """
 
-    return match_sequential(query, variant)
+    ngquery = build_query(query)
+    ngvariant = build_variant(variant)
+
+    return ngquery(ngvariant)
