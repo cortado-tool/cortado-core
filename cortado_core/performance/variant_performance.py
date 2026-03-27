@@ -20,7 +20,7 @@ DEFAULT_NAME_KEY_UNIQUE = DEFAULT_NAME_KEY + "_unique"
 
 
 def assign_variants_performances(
-    variants: Dict[int, Tuple[Group, List[Trace], List, Any]]
+    variants: Dict[int, Tuple[Group, List[Trace], List, Any]],
 ):
     for variant, traces, _, info in variants.values():
         if info.is_user_defined:

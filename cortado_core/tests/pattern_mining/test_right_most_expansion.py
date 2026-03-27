@@ -12,7 +12,6 @@ from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.
     min_sub_mining,
 )
 
-
 l = create_example_log_1()
 variants = get_concurrency_variants(l)
 treebank = create_treebank_from_cv_variants(variants, artifical_start=False)

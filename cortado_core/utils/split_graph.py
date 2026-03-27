@@ -16,6 +16,8 @@ from cortado_core.utils.constants import ARTIFICAL_END_NAME, ARTIFICAL_START_NAM
 
 
 class Group(list):
+    list_length = list.__len__
+
     def __init__(
         self,
         lst: tuple = (),
@@ -85,13 +87,36 @@ class Group(list):
         if "leaf" in serialized and isinstance(serialized["leaf"], List):
             return LeafGroup(lst=serialized["leaf"])
 
-        if "loop" in serialized and isinstance(serialized["loop"].List):
-            return LoopGroup(lst=serialized["leaf"])
+        if "loop" in serialized and isinstance(serialized["loop"], List):
+            repeat_count_min = serialized.get("repeat_count_min", None)
+            repeat_count_max = serialized.get("repeat_count_max", None)
+            return LoopGroup(
+                lst=[Group.deserialize(group) for group in serialized["loop"]],
+                min_count=repeat_count_min,
+                max_count=repeat_count_max,
+            )
+
+        if "optional" in serialized and isinstance(serialized["optional"], list):
+            return OptionalGroup(
+                lst=[Group.deserialize(group) for group in serialized["optional"]]
+            )
 
         if "skip" in serialized and isinstance(serialized["skip"], List):
             return SkipGroup(
                 lst=[Group.deserialize(group) for group in serialized["skip"]]
             )
+
+        if "start" in serialized:
+            return StartGroup(lst=[])
+
+        if "end" in serialized:
+            return EndGroup(lst=[])
+
+        if "wildcard" in serialized:
+            return WildcardGroup(lst=[])
+
+        if "anything" in serialized:
+            return AnythingGroup(lst=[])
 
         return SequenceGroup(lst=[])
 
@@ -110,9 +135,6 @@ class Group(list):
 
     def __lt__(self, other):
         return str(self) < str(other)
-
-    def list_length(self):
-        return len([0 for _ in self])
 
     def toHashSet(self):
         res = set()
@@ -439,6 +461,12 @@ class FallthroughGroup(Group):
 
 
 class LoopGroup(Group):
+    def __init__(self, *args, **kwargs):
+        self.min_count = kwargs.pop("min_count", None)
+        self.max_count = kwargs.pop("max_count", None)
+
+        super().__init__(*args, **kwargs)
+
     def serialize(self, include_performance=True):
         if include_performance:
             return {
@@ -541,6 +569,34 @@ class LeafGroup(Group):
     def number_of_activities(self) -> int:
         # leaf groups contain more than one activity in the case of fallthroughs
         return len([x for x in self])
+
+
+class AnythingGroup(Group):
+    """Meant to used as a leaf"""
+
+    pass
+
+
+class OptionalGroup(Group):
+    pass
+
+
+class StartGroup(Group):
+    """Meant to used as a leaf"""
+
+    pass
+
+
+class EndGroup(Group):
+    """Meant to used as a leaf"""
+
+    pass
+
+
+class WildcardGroup(Group):
+    """Meant to used as a leaf"""
+
+    pass
 
 
 def get_compare(G_follows):

@@ -59,7 +59,7 @@ class ConcurrencyGroup:
                     tmp[names[e]].add(id_name_map[e])
 
                 else:
-                    tmp[names[e]] = set([(id_name_map[e])])
+                    tmp[names[e]] = set([id_name_map[e]])
 
             return tmp
 

@@ -95,7 +95,7 @@ def remove_not_frequent_patterns_from_candidates(
 
 
 def get_pruning_strategy(
-    patterns: Dict[int, Set[EventuallyFollowsPattern]]
+    patterns: Dict[int, Set[EventuallyFollowsPattern]],
 ) -> PruningStrategy:
     right_sub_pattern_pruning = InfixSubPatternsPruningStrategy(patterns)
     pruning_strategy = ComposedPruningStrategy([right_sub_pattern_pruning])

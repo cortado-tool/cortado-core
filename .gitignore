@@ -11,3 +11,6 @@ pm4py/
 *.csv
 cortado_core.egg-info
 .coverage
+venv/
+.envrc
+.direnv

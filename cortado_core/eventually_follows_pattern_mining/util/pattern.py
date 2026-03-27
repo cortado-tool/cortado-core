@@ -35,7 +35,7 @@ def get_activities_for_sub_pattern(sub_pattern: SubPattern) -> Set[str]:
 
 
 def flatten_patterns(
-    patterns: Dict[int, Iterable[EventuallyFollowsPattern]]
+    patterns: Dict[int, Iterable[EventuallyFollowsPattern]],
 ) -> List[EventuallyFollowsPattern]:
     flat_patterns = []
 

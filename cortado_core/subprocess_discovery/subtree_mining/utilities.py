@@ -60,7 +60,7 @@ def _contains_fallthrough(tree):
 
 
 def compute_occurence_list_size(
-    occ_list: Mapping[int, List[Tuple[int, ConcurrencyTree]]]
+    occ_list: Mapping[int, List[Tuple[int, ConcurrencyTree]]],
 ):
     return sum([len(occ) for occ in occ_list.values()])
 

@@ -7,7 +7,7 @@ from cortado_core.eventually_follows_pattern_mining.obj import (
 
 
 def filter_incomplete_patterns(
-    patterns: Dict[int, Set[EventuallyFollowsPattern]]
+    patterns: Dict[int, Set[EventuallyFollowsPattern]],
 ) -> Dict[int, Set[EventuallyFollowsPattern]]:
     result = dict()
 

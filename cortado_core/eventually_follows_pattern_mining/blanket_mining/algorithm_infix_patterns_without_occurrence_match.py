@@ -138,7 +138,7 @@ def __initialize_with_initial_patterns_for_pruning(
 
 
 def __remove_predecessor_from_patterns(
-    patterns: Dict[int, Iterable[EventuallyFollowsPattern]]
+    patterns: Dict[int, Iterable[EventuallyFollowsPattern]],
 ):
     for pts in patterns.values():
         for pattern in pts:

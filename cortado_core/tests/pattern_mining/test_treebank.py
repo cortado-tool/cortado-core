@@ -5,7 +5,6 @@ from cortado_core.subprocess_discovery.subtree_mining.treebank import (
 from cortado_core.tests.pattern_mining.example_log import create_example_log_1
 from cortado_core.utils.cvariants import get_concurrency_variants
 
-
 l = create_example_log_1()
 
 
